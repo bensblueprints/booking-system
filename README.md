@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Booking System
 
-## Getting Started
+Full-stack booking platform built with Next.js, SQLite, and Tailwind CSS. Designed for tour operators, service businesses, and anyone who needs online booking with payment processing.
 
-First, run the development server:
+## Features
+
+- **Admin Dashboard** - Manage products, time slots, bookings, and settings
+- **Public Booking Flow** - 5-step booking: choose tour → pick date → pick time → enter details → pay
+- **Stripe Integration** - Accept deposits via Stripe Checkout
+- **Authorize.net Support** - Alternative payment processor
+- **Google Calendar Sync** - Sync bookings to Google Calendar
+- **SQLite Database** - Portable, no external DB required
+- **Auto-start Service** - launchd plist for Mac Mini deployment
+
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/bensblueprints/booking-system.git
+cd booking-system
+npm install
+npm run build
+npm start -- -p 3100
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then visit:
+- **Booking page:** http://localhost:3100/book
+- **Admin:** http://localhost:3100/admin/login
+- **Default login:** admin / admin123
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Admin Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Log in at /admin/login
+2. Go to **Products** → Create your tours/services (name, price, deposit %, seats, duration)
+3. Go to **Slots** → Create time slots (bulk create by date range + days of week)
+4. Go to **Settings** → Add Stripe keys, Google Calendar credentials, business info
+5. Share the /book link or embed it in your website
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+### Mac Mini (via SSH)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+ssh user@your-server
+git clone https://github.com/bensblueprints/booking-system.git
+cd booking-system
+npm install
+npm run build
+PORT=3100 npm start -- -p 3100
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### As a launchd service (auto-start on reboot)
 
-## Deploy on Vercel
+See the deployment section in the skill documentation.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js 16 (App Router)
+- TypeScript
+- Tailwind CSS v4
+- SQLite via better-sqlite3
+- Stripe SDK
+- Google Calendar API
+- JWT Authentication
+- bcryptjs for password hashing
+
+## License
+
+MIT
+
+---
+
+Website designed & developed by [advancedmarketing.co](https://advancedmarketing.co)
