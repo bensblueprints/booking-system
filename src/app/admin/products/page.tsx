@@ -1,0 +1,399 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
+import { useToast } from "@/components/Toast";
+import Modal from "@/components/Modal";
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+
+interface Product {
+  id: number;
+  name: string;
+  description: string | null;
+  price: number;
+  deposit_percent: number;
+  seats_per_slot: number;
+  duration_minutes: number;
+  season_start: string | null;
+  season_end: string | null;
+  color: string;
+  active: number;
+}
+
+const defaultForm = {
+  name: "",
+  description: "",
+  price: "",
+  deposit_percent: "50",
+  seats_per_slot: "6",
+  duration_minutes: "120",
+  season_start: "",
+  season_end: "",
+  color: "#1B6B8A",
+  active: true,
+};
+
+export default function ProductsPage() {
+  const { addToast } = useToast();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [form, setForm] = useState(defaultForm);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      const res = await fetchWithAuth("/api/products");
+      const data = await res.json();
+      if (Array.isArray(data)) setProducts(data);
+    } catch {
+      addToast("Failed to load products", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openCreate = () => {
+    setEditId(null);
+    setForm(defaultForm);
+    setModalOpen(true);
+  };
+
+  const openEdit = (p: Product) => {
+    setEditId(p.id);
+    setForm({
+      name: p.name,
+      description: p.description || "",
+      price: String(p.price),
+      deposit_percent: String(p.deposit_percent),
+      seats_per_slot: String(p.seats_per_slot),
+      duration_minutes: String(p.duration_minutes),
+      season_start: p.season_start || "",
+      season_end: p.season_end || "",
+      color: p.color || "#1B6B8A",
+      active: !!p.active,
+    });
+    setModalOpen(true);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const payload = {
+        name: form.name,
+        description: form.description || null,
+        price: parseFloat(form.price),
+        deposit_percent: parseInt(form.deposit_percent),
+        seats_per_slot: parseInt(form.seats_per_slot),
+        duration_minutes: parseInt(form.duration_minutes),
+        season_start: form.season_start || null,
+        season_end: form.season_end || null,
+        color: form.color,
+        active: form.active ? 1 : 0,
+      };
+
+      const url = editId ? `/api/products/${editId}` : "/api/products";
+      const method = editId ? "PUT" : "POST";
+
+      const res = await fetchWithAuth(url, {
+        method,
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed");
+      }
+
+      addToast(editId ? "Product updated" : "Product created", "success");
+      setModalOpen(false);
+      loadProducts();
+    } catch (err) {
+      addToast((err as Error).message, "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Deactivate this product?")) return;
+    try {
+      const res = await fetchWithAuth(`/api/products/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed");
+      addToast("Product deactivated", "success");
+      loadProducts();
+    } catch {
+      addToast("Failed to deactivate product", "error");
+    }
+  };
+
+  const handleToggle = async (p: Product) => {
+    try {
+      const res = await fetchWithAuth(`/api/products/${p.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ active: p.active ? 0 : 1 }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      addToast(p.active ? "Product deactivated" : "Product activated", "success");
+      loadProducts();
+    } catch {
+      addToast("Failed to toggle product", "error");
+    }
+  };
+
+  const inputCls =
+    "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
+  const labelCls = "block text-sm font-medium text-gray-300 mb-1";
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-white">Products</h1>
+        <button
+          onClick={openCreate}
+          className="flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-dark rounded-lg text-sm font-medium transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Add Product
+        </button>
+      </div>
+
+      {products.length === 0 ? (
+        <div className="bg-surface-light rounded-xl border border-white/10 p-12 text-center">
+          <p className="text-gray-400">No products yet. Create your first product to get started.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {products.map((p) => (
+            <div
+              key={p.id}
+              className="bg-surface-light rounded-xl border border-white/10 p-5 flex flex-col"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-3 h-10 rounded-full"
+                    style={{ backgroundColor: p.color || "#1B6B8A" }}
+                  />
+                  <div>
+                    <div className="font-semibold text-white">{p.name}</div>
+                    <div className="text-xs text-gray-400">
+                      ${p.price}/person &middot; {p.deposit_percent}% deposit
+                    </div>
+                  </div>
+                </div>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full ${
+                    p.active
+                      ? "bg-success/20 text-success"
+                      : "bg-gray-500/20 text-gray-400"
+                  }`}
+                >
+                  {p.active ? "Active" : "Inactive"}
+                </span>
+              </div>
+
+              {p.description && (
+                <p className="text-sm text-gray-400 mb-3 line-clamp-2">{p.description}</p>
+              )}
+
+              <div className="grid grid-cols-3 gap-2 text-center text-xs mb-4 mt-auto">
+                <div className="bg-surface rounded-lg py-2">
+                  <div className="text-white font-medium">{p.seats_per_slot}</div>
+                  <div className="text-gray-400">Seats</div>
+                </div>
+                <div className="bg-surface rounded-lg py-2">
+                  <div className="text-white font-medium">{p.duration_minutes}m</div>
+                  <div className="text-gray-400">Duration</div>
+                </div>
+                <div className="bg-surface rounded-lg py-2">
+                  <div className="text-white font-medium">
+                    {p.season_start ? `${p.season_start}` : "All"}
+                  </div>
+                  <div className="text-gray-400">Season</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-3 border-t border-white/10">
+                <button
+                  onClick={() => openEdit(p)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <Pencil className="w-3.5 h-3.5" /> Edit
+                </button>
+                <button
+                  onClick={() => handleToggle(p)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  {p.active ? (
+                    <><ToggleRight className="w-3.5 h-3.5" /> Deactivate</>
+                  ) : (
+                    <><ToggleLeft className="w-3.5 h-3.5" /> Activate</>
+                  )}
+                </button>
+                <button
+                  onClick={() => handleDelete(p.id)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-danger bg-white/5 hover:bg-danger/10 rounded-lg transition-colors ml-auto"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editId ? "Edit Product" : "New Product"}
+        wide
+      >
+        <form onSubmit={handleSave} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className={labelCls}>Name *</label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className={inputCls}
+                required
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className={labelCls}>Description</label>
+              <textarea
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                className={`${inputCls} h-20 resize-none`}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Price per Person ($) *</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                className={inputCls}
+                required
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Deposit %</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={form.deposit_percent}
+                onChange={(e) => setForm({ ...form, deposit_percent: e.target.value })}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Seats per Slot</label>
+              <input
+                type="number"
+                min="1"
+                value={form.seats_per_slot}
+                onChange={(e) => setForm({ ...form, seats_per_slot: e.target.value })}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Duration (minutes)</label>
+              <input
+                type="number"
+                min="1"
+                value={form.duration_minutes}
+                onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Season Start (MM-DD)</label>
+              <input
+                type="text"
+                placeholder="03-01"
+                value={form.season_start}
+                onChange={(e) => setForm({ ...form, season_start: e.target.value })}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Season End (MM-DD)</label>
+              <input
+                type="text"
+                placeholder="10-31"
+                value={form.season_end}
+                onChange={(e) => setForm({ ...form, season_end: e.target.value })}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Color</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={form.color}
+                  onChange={(e) => setForm({ ...form, color: e.target.value })}
+                  className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={form.color}
+                  onChange={(e) => setForm({ ...form, color: e.target.value })}
+                  className={inputCls}
+                />
+              </div>
+            </div>
+            <div className="flex items-end">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.active}
+                  onChange={(e) => setForm({ ...form, active: e.target.checked })}
+                  className="w-4 h-4 rounded border-white/20 accent-brand"
+                />
+                <span className="text-sm text-gray-300">Active</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="px-4 py-2 text-sm bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-4 py-2 text-sm bg-brand hover:bg-brand-dark rounded-lg font-medium transition-colors disabled:opacity-50"
+            >
+              {saving ? "Saving..." : editId ? "Update Product" : "Create Product"}
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+}
