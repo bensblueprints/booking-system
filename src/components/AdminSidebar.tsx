@@ -100,7 +100,7 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
 
   const sidebar = (
     <div className="flex flex-col h-full">
-      <div className="px-5 py-6 border-b border-white/10">
+      <div className="px-5 py-6 border-b border-slate-200">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-brand rounded-lg flex items-center justify-center">
             <Anchor className="w-5 h-5 text-white" />
@@ -117,7 +117,7 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
       <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
         {navSections.map((section) => (
           <div key={section.label}>
-            <div className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+            <div className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               {section.label}
             </div>
             <div className="space-y-1">
@@ -131,8 +131,8 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
                     onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       active
-                        ? "bg-brand text-white"
-                        : "text-gray-300 hover:text-white hover:bg-white/5"
+                        ? "bg-brand text-slate-50"
+                        : "text-gray-300 hover:text-white hover:bg-slate-100"
                     }`}
                   >
                     <Icon className="w-5 h-5 shrink-0" />
@@ -143,14 +143,14 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
             </div>
           </div>
         ))}
-        <div className="pt-2 border-t border-white/10">
+        <div className="pt-2 border-t border-slate-200">
           <Link
             href="/admin/settings"
             onClick={() => setMobileOpen(false)}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
               isActive("/admin/settings")
-                ? "bg-brand text-white"
-                : "text-gray-300 hover:text-white hover:bg-white/5"
+                ? "bg-brand text-slate-50"
+                : "text-gray-300 hover:text-white hover:bg-slate-100"
             }`}
           >
             <Settings className="w-5 h-5 shrink-0" />
@@ -159,17 +159,17 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
         </div>
       </nav>
 
-      <div className="px-3 py-4 border-t border-white/10">
+      <div className="px-3 py-4 border-t border-slate-200">
         <button
           onClick={onLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-danger hover:bg-white/5 transition-colors w-full"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-danger hover:bg-slate-100 transition-colors w-full"
         >
           <LogOut className="w-5 h-5 shrink-0" />
           Log Out
         </button>
       </div>
-      <div className="px-5 py-3 border-t border-white/10">
-        <a href="https://advancedmarketing.co" target="_blank" rel="noopener noreferrer" className="text-xs text-gray-500 hover:text-brand transition-colors">
+      <div className="px-5 py-3 border-t border-slate-200">
+        <a href="https://advancedmarketing.co" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-brand transition-colors">
           Designed by advancedmarketing.co
         </a>
       </div>
@@ -180,18 +180,18 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
     <>
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-surface-light rounded-lg border border-white/10"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg border border-slate-200"
       >
         <Menu className="w-5 h-5" />
       </button>
 
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-40">
-          <div className="fixed inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
-          <div className="fixed left-0 top-0 bottom-0 w-64 bg-surface-light border-r border-white/10 z-50">
+          <div className="fixed inset-0 bg-black/30" onClick={() => setMobileOpen(false)} />
+          <div className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 z-50">
             <button
               onClick={() => setMobileOpen(false)}
-              className="absolute top-4 right-4 p-1 hover:bg-white/10 rounded-lg"
+              className="absolute top-4 right-4 p-1 hover:bg-slate-100 rounded-lg"
             >
               <X className="w-5 h-5" />
             </button>
@@ -200,7 +200,7 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
         </div>
       )}
 
-      <aside className="hidden lg:block w-64 bg-surface-light border-r border-white/10 fixed top-0 left-0 bottom-0">
+      <aside className="hidden lg:block w-64 bg-white border-r border-slate-200 fixed top-0 left-0 bottom-0">
         {sidebar}
       </aside>
     </>

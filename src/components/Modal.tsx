@@ -27,13 +27,13 @@ export default function Modal({ open, onClose, title, children, wide }: ModalPro
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/60" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/40" onClick={onClose} />
       <div
-        className={`relative bg-surface-light rounded-xl shadow-2xl border border-white/10 w-full ${
+        className={`relative bg-white rounded-xl shadow-2xl border border-slate-200 w-full ${
           wide ? "max-w-2xl" : "max-w-lg"
         } max-h-[90vh] overflow-y-auto`}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
           <h2 className="text-lg font-semibold">{title}</h2>
           <button
             onClick={onClose}
