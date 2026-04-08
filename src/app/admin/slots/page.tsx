@@ -10,6 +10,7 @@ import {
   Plus,
   Trash2,
   Calendar,
+  X,
 } from "lucide-react";
 
 interface Product {
@@ -30,7 +31,14 @@ interface Slot {
   product_color: string;
 }
 
+interface TimeSlotEntry {
+  id: number;
+  start_time: string;
+  end_time: string;
+}
+
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+let nextTimeSlotId = 1;
 
 export default function SlotsPage() {
   const { addToast } = useToast();
@@ -42,16 +50,22 @@ export default function SlotsPage() {
   const [filterProduct, setFilterProduct] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
 
   const [bulkForm, setBulkForm] = useState({
     product_id: "",
     date_from: "",
     date_to: "",
-    start_time: "09:00",
-    end_time: "11:00",
-    days: [0, 1, 2, 3, 4] as number[],
+    days: [0, 1, 2, 3, 4, 5, 6] as number[],
   });
+  const [timeSlots, setTimeSlots] = useState<TimeSlotEntry[]>([
+    { id: nextTimeSlotId++, start_time: "09:00", end_time: "11:00" },
+  ]);
   const [bulkSaving, setBulkSaving] = useState(false);
+
+  // Quick add (single day)
+  const [quickForm, setQuickForm] = useState({ product_id: "", start_time: "09:00", end_time: "11:00" });
+  const [quickSaving, setQuickSaving] = useState(false);
 
   useEffect(() => {
     loadProducts();
@@ -129,10 +143,34 @@ export default function SlotsPage() {
     }
   };
 
+  /* ---- Time slot management ---- */
+  const addTimeSlot = () => {
+    setTimeSlots((prev) => [
+      ...prev,
+      { id: nextTimeSlotId++, start_time: "14:00", end_time: "16:00" },
+    ]);
+  };
+
+  const removeTimeSlot = (id: number) => {
+    if (timeSlots.length <= 1) return;
+    setTimeSlots((prev) => prev.filter((ts) => ts.id !== id));
+  };
+
+  const updateTimeSlot = (id: number, field: "start_time" | "end_time", value: string) => {
+    setTimeSlots((prev) =>
+      prev.map((ts) => (ts.id === id ? { ...ts, [field]: value } : ts))
+    );
+  };
+
+  /* ---- Bulk create ---- */
   const handleBulkCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!bulkForm.product_id || !bulkForm.date_from || !bulkForm.date_to || bulkForm.days.length === 0) {
       addToast("Fill in all fields and select at least one day", "error");
+      return;
+    }
+    if (timeSlots.length === 0) {
+      addToast("Add at least one time slot", "error");
       return;
     }
 
@@ -161,8 +199,10 @@ export default function SlotsPage() {
         body: JSON.stringify({
           product_id: parseInt(bulkForm.product_id),
           dates,
-          start_time: bulkForm.start_time,
-          end_time: bulkForm.end_time,
+          time_slots: timeSlots.map((ts) => ({
+            start_time: ts.start_time,
+            end_time: ts.end_time,
+          })),
         }),
       });
 
@@ -171,13 +211,46 @@ export default function SlotsPage() {
         throw new Error(err.error || "Failed");
       }
 
-      addToast(`Created ${dates.length} slots`, "success");
+      const totalSlots = dates.length * timeSlots.length;
+      addToast(`Created ${totalSlots} slots (${dates.length} days × ${timeSlots.length} time slots/day)`, "success");
       setBulkOpen(false);
       loadSlots();
     } catch (err) {
       addToast((err as Error).message, "error");
     } finally {
       setBulkSaving(false);
+    }
+  };
+
+  /* ---- Quick add (single day from sidebar) ---- */
+  const handleQuickAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedDate || !quickForm.product_id) return;
+
+    setQuickSaving(true);
+    try {
+      const res = await fetchWithAuth("/api/slots", {
+        method: "POST",
+        body: JSON.stringify({
+          product_id: parseInt(quickForm.product_id),
+          dates: [selectedDate],
+          start_time: quickForm.start_time,
+          end_time: quickForm.end_time,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed");
+      }
+
+      addToast("Slot added", "success");
+      setQuickAddOpen(false);
+      loadSlots();
+    } catch (err) {
+      addToast((err as Error).message, "error");
+    } finally {
+      setQuickSaving(false);
     }
   };
 
@@ -295,11 +368,23 @@ export default function SlotsPage() {
             </div>
           </div>
 
+          {/* Day detail sidebar */}
           <div className="bg-surface-light rounded-xl border border-white/10 p-5">
-            <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-brand-light" />
-              {selectedDate || "Select a day"}
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-brand-light" />
+                {selectedDate || "Select a day"}
+              </h2>
+              {selectedDate && (
+                <button
+                  onClick={() => { setQuickAddOpen(true); setQuickForm({ ...quickForm, product_id: products[0]?.id?.toString() || "" }); }}
+                  className="flex items-center gap-1 px-2 py-1 text-xs bg-brand/20 hover:bg-brand/30 text-brand-light rounded-lg transition-colors"
+                >
+                  <Plus className="w-3 h-3" /> Add Slot
+                </button>
+              )}
+            </div>
+
             {selectedDate && selectedSlots.length === 0 && (
               <p className="text-sm text-gray-400">No slots for this day.</p>
             )}
@@ -338,10 +423,61 @@ export default function SlotsPage() {
                 </div>
               ))}
             </div>
+
+            {/* Quick add form (inline) */}
+            {quickAddOpen && selectedDate && (
+              <form onSubmit={handleQuickAdd} className="mt-4 pt-4 border-t border-white/10 space-y-3">
+                <div className="text-xs font-medium text-gray-300 mb-2">Add slot for {selectedDate}</div>
+                <select
+                  value={quickForm.product_id}
+                  onChange={(e) => setQuickForm({ ...quickForm, product_id: e.target.value })}
+                  className={inputCls}
+                  required
+                >
+                  <option value="">Select product</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="time"
+                    value={quickForm.start_time}
+                    onChange={(e) => setQuickForm({ ...quickForm, start_time: e.target.value })}
+                    className={inputCls}
+                    required
+                  />
+                  <input
+                    type="time"
+                    value={quickForm.end_time}
+                    onChange={(e) => setQuickForm({ ...quickForm, end_time: e.target.value })}
+                    className={inputCls}
+                    required
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={quickSaving}
+                    className="flex-1 px-3 py-1.5 text-xs bg-brand hover:bg-brand-dark rounded-lg font-medium transition-colors disabled:opacity-50"
+                  >
+                    {quickSaving ? "Adding..." : "Add"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuickAddOpen(false)}
+                    className="px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
 
+      {/* Bulk Create Modal */}
       <Modal open={bulkOpen} onClose={() => setBulkOpen(false)} title="Bulk Create Slots" wide>
         <form onSubmit={handleBulkCreate} className="space-y-4">
           <div>
@@ -402,28 +538,64 @@ export default function SlotsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Start Time *</label>
-              <input
-                type="time"
-                value={bulkForm.start_time}
-                onChange={(e) => setBulkForm({ ...bulkForm, start_time: e.target.value })}
-                className={inputCls}
-                required
-              />
+          {/* Multiple daily time slots */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className={labelCls + " mb-0"}>Daily Time Slots *</label>
+              <button
+                type="button"
+                onClick={addTimeSlot}
+                className="flex items-center gap-1 px-2 py-1 text-xs bg-brand/20 hover:bg-brand/30 text-brand-light rounded-lg transition-colors"
+              >
+                <Plus className="w-3 h-3" /> Add Time
+              </button>
             </div>
-            <div>
-              <label className={labelCls}>End Time *</label>
-              <input
-                type="time"
-                value={bulkForm.end_time}
-                onChange={(e) => setBulkForm({ ...bulkForm, end_time: e.target.value })}
-                className={inputCls}
-                required
-              />
+            <p className="text-xs text-gray-500 mb-3">
+              Add multiple time slots if this product runs at different times each day (e.g., morning and afternoon).
+            </p>
+            <div className="space-y-2">
+              {timeSlots.map((ts, idx) => (
+                <div key={ts.id} className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500 w-6 shrink-0">#{idx + 1}</span>
+                  <input
+                    type="time"
+                    value={ts.start_time}
+                    onChange={(e) => updateTimeSlot(ts.id, "start_time", e.target.value)}
+                    className={inputCls}
+                    required
+                  />
+                  <span className="text-gray-500 text-sm shrink-0">to</span>
+                  <input
+                    type="time"
+                    value={ts.end_time}
+                    onChange={(e) => updateTimeSlot(ts.id, "end_time", e.target.value)}
+                    className={inputCls}
+                    required
+                  />
+                  {timeSlots.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeTimeSlot(ts.id)}
+                      className="p-1.5 text-gray-400 hover:text-danger hover:bg-white/5 rounded-lg transition-colors shrink-0"
+                      title="Remove this time slot"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
+
+          {/* Summary */}
+          {bulkForm.date_from && bulkForm.date_to && bulkForm.days.length > 0 && (
+            <div className="bg-surface rounded-lg border border-white/5 p-3">
+              <p className="text-xs text-gray-400">
+                This will create <strong className="text-white">{timeSlots.length} slot{timeSlots.length > 1 ? "s" : ""} per day</strong> on
+                {" "}{bulkForm.days.map((d) => DAY_LABELS[d]).join(", ")} from {bulkForm.date_from} to {bulkForm.date_to}.
+              </p>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
             <button

@@ -51,6 +51,11 @@ export async function GET(request: Request) {
   }
 }
 
+interface TimeSlot {
+  start_time: string;
+  end_time: string;
+}
+
 export async function POST(request: Request) {
   const admin = getAdminFromRequest(request);
   if (!admin) {
@@ -59,11 +64,35 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { product_id, dates, start_time, end_time } = body;
+    const { product_id, dates, start_time, end_time, time_slots } = body;
 
-    if (!product_id || !dates || !Array.isArray(dates) || !start_time || !end_time) {
+    if (!product_id || !dates || !Array.isArray(dates)) {
       return NextResponse.json(
-        { error: "product_id, dates (array), start_time, and end_time are required" },
+        { error: "product_id and dates (array) are required" },
+        { status: 400 }
+      );
+    }
+
+    // Support both old format (single start_time/end_time) and new format (time_slots array)
+    let slotTimes: TimeSlot[] = [];
+
+    if (time_slots && Array.isArray(time_slots) && time_slots.length > 0) {
+      // New format: multiple time slots per day
+      for (const ts of time_slots) {
+        if (!ts.start_time || !ts.end_time) {
+          return NextResponse.json(
+            { error: "Each time slot must have start_time and end_time" },
+            { status: 400 }
+          );
+        }
+        slotTimes.push({ start_time: ts.start_time, end_time: ts.end_time });
+      }
+    } else if (start_time && end_time) {
+      // Old format: single time slot (backwards compatible)
+      slotTimes = [{ start_time, end_time }];
+    } else {
+      return NextResponse.json(
+        { error: "Either time_slots array or start_time/end_time are required" },
         { status: 400 }
       );
     }
@@ -83,23 +112,25 @@ export async function POST(request: Request) {
     );
 
     const created: unknown[] = [];
-    const insertMany = db.transaction((dates: string[]) => {
+    const insertMany = db.transaction((dates: string[], times: TimeSlot[]) => {
       for (const date of dates) {
-        const result = insert.run(
-          product_id,
-          date,
-          start_time,
-          end_time,
-          product.seats_per_slot
-        );
-        const slot = db
-          .prepare("SELECT * FROM slots WHERE id = ?")
-          .get(result.lastInsertRowid);
-        created.push(slot);
+        for (const ts of times) {
+          const result = insert.run(
+            product_id,
+            date,
+            ts.start_time,
+            ts.end_time,
+            product.seats_per_slot
+          );
+          const slot = db
+            .prepare("SELECT * FROM slots WHERE id = ?")
+            .get(result.lastInsertRowid);
+          created.push(slot);
+        }
       }
     });
 
-    insertMany(dates);
+    insertMany(dates, slotTimes);
 
     return NextResponse.json(created, { status: 201 });
   } catch (error) {
