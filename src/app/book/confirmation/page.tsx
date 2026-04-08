@@ -42,7 +42,7 @@ interface BookingDetails {
 /*  Colours                                                           */
 /* ------------------------------------------------------------------ */
 const C = {
-  brand: "#1B6B8A",
+  brand: "#3b82f6",
   accent: "#F4B942",
   white: "#ffffff",
   gray100: "#f3f4f6",
@@ -416,7 +416,7 @@ export default function ConfirmationPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center py-24">
-          <Loader2 size={32} style={{ color: "#1B6B8A" }} className="animate-spin" />
+          <Loader2 size={32} style={{ color: "#3b82f6" }} className="animate-spin" />
         </div>
       }
     >

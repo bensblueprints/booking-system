@@ -27,7 +27,7 @@ export function runMigrations(db: Database.Database) {
       season_start TEXT,
       season_end TEXT,
       active INTEGER DEFAULT 1,
-      color TEXT DEFAULT '#1B6B8A',
+      color TEXT DEFAULT '#3b82f6',
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 

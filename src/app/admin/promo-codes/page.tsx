@@ -172,7 +172,7 @@ export default function PromoCodesPage() {
   };
 
   const inputCls =
-    "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
+    "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
   const labelCls = "block text-sm font-medium text-gray-300 mb-1";
 
   if (loading) {

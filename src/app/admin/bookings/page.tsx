@@ -580,7 +580,7 @@ export default function BookingsPage() {
                 max={refundBooking.total_amount}
                 value={refundAmount}
                 onChange={(e) => setRefundAmount(e.target.value)}
-                className="w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm"
+                className="w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Deposit: ${refundBooking.deposit_amount?.toFixed(2)} | Total: ${refundBooking.total_amount?.toFixed(2)}
@@ -594,7 +594,7 @@ export default function BookingsPage() {
               <textarea
                 value={refundReason}
                 onChange={(e) => setRefundReason(e.target.value)}
-                className="w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm h-20 resize-none"
+                className="w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm h-20 resize-none"
                 placeholder="Reason for refund..."
               />
             </div>

@@ -95,7 +95,7 @@ interface PromoValidation {
 /*  Colour helpers (inline styles for light theme)                    */
 /* ------------------------------------------------------------------ */
 const C = {
-  brand: "#1B6B8A",
+  brand: "#3b82f6",
   brandDark: "#155570",
   brandLight: "#2a8db0",
   accent: "#F4B942",

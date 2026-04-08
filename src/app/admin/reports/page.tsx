@@ -208,7 +208,7 @@ export default function ReportsPage() {
                 formatter={(value) => [formatCurrency(Number(value)), "Revenue"]}
               />
               <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#1B6B8A" strokeWidth={2} dot={false} name="Revenue" />
+              <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} dot={false} name="Revenue" />
             </LineChart>
           </ResponsiveContainer>
         )}
@@ -246,7 +246,7 @@ export default function ReportsPage() {
                 labelStyle={{ color: "#fff" }}
               />
               <Legend />
-              <Bar dataKey="bookings" fill="#1B6B8A" radius={[4, 4, 0, 0]} name="Bookings" />
+              <Bar dataKey="bookings" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Bookings" />
             </BarChart>
           </ResponsiveContainer>
         )}

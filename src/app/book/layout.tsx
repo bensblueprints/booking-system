@@ -24,7 +24,7 @@ export default function BookLayout({
       >
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <h1
-            style={{ color: "#1B6B8A" }}
+            style={{ color: "#3b82f6" }}
             className="text-xl font-bold tracking-tight"
           >
             Book Your Tour
@@ -36,7 +36,7 @@ export default function BookLayout({
         style={{ borderTop: "1px solid #e5e7eb", color: "#6b7280" }}
         className="px-4 py-4 text-center text-sm"
       >
-        Website designed &amp; developed by <a href="https://advancedmarketing.co" target="_blank" rel="noopener noreferrer" style={{ color: "#1B6B8A", textDecoration: "underline" }}>advancedmarketing.co</a>
+        Website designed &amp; developed by <a href="https://advancedmarketing.co" target="_blank" rel="noopener noreferrer" style={{ color: "#3b82f6", textDecoration: "underline" }}>advancedmarketing.co</a>
       </footer>
     </div>
   );
