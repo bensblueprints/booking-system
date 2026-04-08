@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { sendBookingEmail } from "@/lib/email";
+import { sendBookingEmail, sendEmail } from "@/lib/email";
 
 export async function GET(
   request: Request,
@@ -90,6 +90,47 @@ export async function POST(
         await sendBookingEmail(booking.id as number, "cancellation");
       } catch {
         // Don't fail the cancellation if email fails
+      }
+
+      // Phase 2: Check waitlist for this slot and auto-notify first waiting entry
+      try {
+        const waitlistEntry = db.prepare(
+          `SELECT w.*, s.date, s.start_time, p.name as product_name
+           FROM waitlist w
+           JOIN slots s ON w.slot_id = s.id
+           JOIN products p ON s.product_id = p.id
+           WHERE w.slot_id = ? AND w.status = 'waiting'
+           ORDER BY w.created_at ASC
+           LIMIT 1`
+        ).get(booking.slot_id) as Record<string, unknown> | undefined;
+
+        if (waitlistEntry) {
+          const businessName = db.prepare("SELECT value FROM settings WHERE key = 'business_name'").get() as { value: string } | undefined;
+          const bName = businessName?.value || "Our Business";
+
+          const html = `
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+              <h2 style="color:#1B6B8A;">A Spot Has Opened Up!</h2>
+              <p>Hi ${waitlistEntry.customer_name},</p>
+              <p>Great news! A spot has opened up for <strong>${waitlistEntry.product_name}</strong> on <strong>${waitlistEntry.date}</strong> at <strong>${waitlistEntry.start_time}</strong>.</p>
+              <p>Please book soon as spots fill quickly!</p>
+              <hr style="margin:30px 0;border:none;border-top:1px solid #eee;">
+              <p style="color:#666;font-size:14px;">${bName}</p>
+            </div>
+          `;
+
+          await sendEmail(
+            String(waitlistEntry.customer_email),
+            `A spot opened up for ${waitlistEntry.product_name}!`,
+            html
+          );
+
+          db.prepare(
+            "UPDATE waitlist SET status = 'notified', notified_at = datetime('now') WHERE id = ?"
+          ).run(waitlistEntry.id);
+        }
+      } catch {
+        // Don't fail if waitlist notification fails
       }
 
       const updated = db.prepare("SELECT * FROM bookings WHERE id = ?").get(booking.id);

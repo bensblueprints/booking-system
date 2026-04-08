@@ -260,7 +260,7 @@ export function runMigrations(db: Database.Database) {
   const upsertSetting = db.prepare(
     "INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)"
   );
-  const newSettings: Record<string, string> = {
+  const phase1Settings: Record<string, string> = {
     smtp_host: "",
     smtp_port: "587",
     smtp_user: "",
@@ -273,7 +273,125 @@ export function runMigrations(db: Database.Database) {
     reminder_enabled: "0",
     reminder_hours: "24",
   };
-  for (const [key, value] of Object.entries(newSettings)) {
+  for (const [key, value] of Object.entries(phase1Settings)) {
+    upsertSetting.run(key, value);
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // ── Phase 2: New tables ──────────────────────────────────
+  // ══════════════════════════════════════════════════════════
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS customers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      phone TEXT DEFAULT '',
+      notes TEXT DEFAULT '',
+      tags TEXT DEFAULT '',
+      total_bookings INTEGER DEFAULT 0,
+      total_spent REAL DEFAULT 0,
+      first_booking TEXT DEFAULT NULL,
+      last_booking TEXT DEFAULT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS waivers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      content_html TEXT NOT NULL,
+      product_id INTEGER DEFAULT NULL,
+      required INTEGER DEFAULT 1,
+      active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS waiver_signatures (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      waiver_id INTEGER NOT NULL REFERENCES waivers(id),
+      booking_id INTEGER NOT NULL REFERENCES bookings(id),
+      customer_name TEXT NOT NULL,
+      signature_data TEXT NOT NULL,
+      signed_at TEXT DEFAULT (datetime('now')),
+      ip_address TEXT DEFAULT ''
+    );
+
+    CREATE TABLE IF NOT EXISTS reviews (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      booking_id INTEGER NOT NULL REFERENCES bookings(id),
+      customer_name TEXT NOT NULL,
+      rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+      comment TEXT DEFAULT '',
+      approved INTEGER DEFAULT 0,
+      review_token TEXT UNIQUE,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS quantity_discounts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      product_id INTEGER NOT NULL REFERENCES products(id),
+      min_quantity INTEGER NOT NULL,
+      discount_type TEXT NOT NULL CHECK(discount_type IN ('percent','fixed_per_person')),
+      discount_value REAL NOT NULL,
+      active INTEGER DEFAULT 1
+    );
+
+    CREATE TABLE IF NOT EXISTS waitlist (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      slot_id INTEGER NOT NULL REFERENCES slots(id),
+      customer_name TEXT NOT NULL,
+      customer_email TEXT NOT NULL,
+      customer_phone TEXT DEFAULT '',
+      party_size INTEGER NOT NULL DEFAULT 1,
+      status TEXT DEFAULT 'waiting',
+      notified_at TEXT DEFAULT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS resources (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL,
+      capacity INTEGER DEFAULT NULL,
+      notes TEXT DEFAULT '',
+      active INTEGER DEFAULT 1
+    );
+
+    CREATE TABLE IF NOT EXISTS slot_resources (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      slot_id INTEGER NOT NULL REFERENCES slots(id),
+      resource_id INTEGER NOT NULL REFERENCES resources(id),
+      UNIQUE(slot_id, resource_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS sms_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      booking_id INTEGER REFERENCES bookings(id),
+      phone_number TEXT NOT NULL,
+      message_type TEXT NOT NULL,
+      twilio_sid TEXT DEFAULT NULL,
+      status TEXT DEFAULT 'sent',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+
+  // ── Phase 2: Alter existing tables ───────────────────────
+  addColumnIfNotExists(db, "bookings", "customer_id", "INTEGER DEFAULT NULL");
+  addColumnIfNotExists(db, "bookings", "checked_in", "INTEGER DEFAULT 0");
+  addColumnIfNotExists(db, "bookings", "checked_in_at", "TEXT DEFAULT NULL");
+
+  // ── Phase 2: Seed new settings ───────────────────────────
+  const phase2Settings: Record<string, string> = {
+    twilio_account_sid: "",
+    twilio_auth_token: "",
+    twilio_phone_number: "",
+    sms_confirmation_enabled: "0",
+    sms_reminder_enabled: "0",
+    review_request_enabled: "0",
+    review_request_delay_hours: "24",
+  };
+  for (const [key, value] of Object.entries(phase2Settings)) {
     upsertSetting.run(key, value);
   }
 }

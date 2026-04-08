@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { getAdminFromRequest } from "@/lib/auth";
 import { validatePromoCode, applyPromoCode } from "@/lib/promo";
 import { sendBookingEmail } from "@/lib/email";
+import { sendBookingSms } from "@/lib/sms";
 import crypto from "crypto";
 
 export async function GET(request: Request) {
@@ -208,7 +209,37 @@ export async function POST(request: Request) {
       }
     }
 
+    // Phase 2: Apply quantity discounts
+    let quantityDiscount = 0;
+    const qDiscounts = db.prepare(
+      `SELECT * FROM quantity_discounts
+       WHERE product_id = ? AND min_quantity <= ? AND active = 1
+       ORDER BY min_quantity DESC`
+    ).all(slot.product_id, size) as {
+      discount_type: string;
+      discount_value: number;
+      min_quantity: number;
+    }[];
+
+    if (qDiscounts.length > 0) {
+      // Find the best discount (highest value)
+      let bestDiscount = 0;
+      for (const qd of qDiscounts) {
+        let discVal = 0;
+        if (qd.discount_type === "percent") {
+          discVal = (product.price * size) * (qd.discount_value / 100);
+        } else if (qd.discount_type === "fixed_per_person") {
+          discVal = qd.discount_value * size;
+        }
+        if (discVal > bestDiscount) {
+          bestDiscount = discVal;
+        }
+      }
+      quantityDiscount = bestDiscount;
+    }
+
     // Final totals
+    discount_amount += quantityDiscount;
     total_amount = total_amount + addons_total - discount_amount;
     if (total_amount < 0) total_amount = 0;
 
@@ -255,6 +286,25 @@ export async function POST(request: Request) {
         applyPromoCode(promo_code_id);
       }
 
+      // Phase 2: Upsert customer record
+      db.prepare(
+        `INSERT INTO customers (email, name, phone, total_bookings, total_spent, first_booking, last_booking)
+         VALUES (?, ?, ?, 1, ?, datetime('now'), datetime('now'))
+         ON CONFLICT(email) DO UPDATE SET
+           name = excluded.name,
+           phone = CASE WHEN excluded.phone != '' THEN excluded.phone ELSE customers.phone END,
+           total_bookings = customers.total_bookings + 1,
+           total_spent = customers.total_spent + excluded.total_spent,
+           last_booking = datetime('now'),
+           updated_at = datetime('now')`
+      ).run(customer_email, customer_name, customer_phone || "", total_amount);
+
+      // Get customer id and set on booking
+      const customer = db.prepare("SELECT id FROM customers WHERE email = ?").get(customer_email) as { id: number } | undefined;
+      if (customer) {
+        db.prepare("UPDATE bookings SET customer_id = ? WHERE id = ?").run(customer.id, bookingId);
+      }
+
       return bookingId;
     });
 
@@ -269,6 +319,16 @@ export async function POST(request: Request) {
       await sendBookingEmail(bookingId as number, "confirmation");
     } catch {
       // Don't fail the booking if email fails
+    }
+
+    // Phase 2: Send SMS confirmation if enabled
+    try {
+      const smsEnabled = db.prepare("SELECT value FROM settings WHERE key = 'sms_confirmation_enabled'").get() as { value: string } | undefined;
+      if (smsEnabled?.value === "1" && customer_phone) {
+        await sendBookingSms(bookingId as number, "confirmation");
+      }
+    } catch {
+      // Don't fail the booking if SMS fails
     }
 
     return NextResponse.json(booking, { status: 201 });

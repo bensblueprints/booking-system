@@ -17,6 +17,13 @@ import {
   PackagePlus,
   CalendarX,
   Mail,
+  Users,
+  ClipboardCheck,
+  FileSignature,
+  Star,
+  Shield,
+  Truck,
+  ListPlus,
 } from "lucide-react";
 
 const navItems = [
@@ -27,6 +34,13 @@ const navItems = [
   { href: "/admin/addons", label: "Add-ons", icon: PackagePlus },
   { href: "/admin/blackout-dates", label: "Blackout Dates", icon: CalendarX },
   { href: "/admin/email-templates", label: "Email Templates", icon: Mail },
+  { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/check-in", label: "Check-in", icon: ClipboardCheck },
+  { href: "/admin/waivers", label: "Waivers", icon: FileSignature },
+  { href: "/admin/reviews", label: "Reviews", icon: Star },
+  { href: "/admin/staff", label: "Staff", icon: Shield },
+  { href: "/admin/resources", label: "Resources", icon: Truck },
+  { href: "/admin/waitlist", label: "Waitlist", icon: ListPlus },
   { href: "/admin/bookings", label: "Bookings", icon: BookOpen },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
@@ -61,7 +75,7 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
         </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);

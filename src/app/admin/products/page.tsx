@@ -22,6 +22,13 @@ interface Product {
   min_participants?: number;
 }
 
+interface DiscountTier {
+  id?: number;
+  min_quantity: number;
+  discount_type: "percent" | "fixed_per_person";
+  discount_value: number;
+}
+
 const defaultForm = {
   name: "",
   description: "",
@@ -64,6 +71,7 @@ export default function ProductsPage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState(defaultForm);
   const [saving, setSaving] = useState(false);
+  const [discountTiers, setDiscountTiers] = useState<DiscountTier[]>([]);
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
@@ -83,9 +91,21 @@ export default function ProductsPage() {
     }
   };
 
+  const loadDiscounts = async (productId: number) => {
+    try {
+      const res = await fetchWithAuth(`/api/quantity-discounts?product_id=${productId}`);
+      const data = await res.json();
+      if (Array.isArray(data)) setDiscountTiers(data);
+      else setDiscountTiers([]);
+    } catch {
+      setDiscountTiers([]);
+    }
+  };
+
   const openCreate = () => {
     setEditId(null);
     setForm(defaultForm);
+    setDiscountTiers([]);
     setModalOpen(true);
   };
 
@@ -105,6 +125,7 @@ export default function ProductsPage() {
       cutoff_hours: String(p.cutoff_hours ?? 0),
       min_participants: String(p.min_participants ?? 1),
     });
+    loadDiscounts(p.id);
     setModalOpen(true);
   };
 
@@ -145,6 +166,25 @@ export default function ProductsPage() {
         throw new Error(err.error || "Failed");
       }
 
+      const productData = await res.json();
+      const productId = editId || productData.id;
+
+      // Save discount tiers
+      if (productId) {
+        await fetchWithAuth(`/api/quantity-discounts?product_id=${productId}`, { method: "DELETE" });
+        for (const tier of discountTiers) {
+          await fetchWithAuth("/api/quantity-discounts", {
+            method: "POST",
+            body: JSON.stringify({
+              product_id: productId,
+              min_quantity: tier.min_quantity,
+              discount_type: tier.discount_type,
+              discount_value: tier.discount_value,
+            }),
+          });
+        }
+      }
+
       addToast(editId ? "Product updated" : "Product created", "success");
       setModalOpen(false);
       loadProducts();
@@ -179,6 +219,18 @@ export default function ProductsPage() {
     } catch {
       addToast("Failed to toggle product", "error");
     }
+  };
+
+  const addDiscountTier = () => {
+    setDiscountTiers((prev) => [...prev, { min_quantity: 4, discount_type: "percent", discount_value: 10 }]);
+  };
+
+  const updateDiscountTier = (idx: number, field: keyof DiscountTier, value: string | number) => {
+    setDiscountTiers((prev) => prev.map((t, i) => i === idx ? { ...t, [field]: value } : t));
+  };
+
+  const removeDiscountTier = (idx: number) => {
+    setDiscountTiers((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const getDirectLink = (p: Product) => `${baseUrl}/book?product=${p.id}`;
@@ -570,6 +622,69 @@ export default function ProductsPage() {
                 <span className="text-sm text-gray-300">Active</span>
               </label>
             </div>
+          </div>
+
+          {/* Quantity Discounts */}
+          <div className="pt-4 border-t border-white/10">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-semibold text-white">Quantity Discounts</label>
+              <button
+                type="button"
+                onClick={addDiscountTier}
+                className="flex items-center gap-1 px-2 py-1 text-xs bg-brand/20 hover:bg-brand/30 text-brand-light rounded-lg transition-colors"
+              >
+                <Plus className="w-3 h-3" /> Add Discount Tier
+              </button>
+            </div>
+            {discountTiers.length === 0 ? (
+              <p className="text-xs text-gray-500">No quantity discounts. Add tiers to offer group discounts.</p>
+            ) : (
+              <div className="space-y-2">
+                {discountTiers.map((tier, idx) => (
+                  <div key={idx} className="flex items-center gap-2 bg-surface rounded-lg p-2 border border-white/5">
+                    <div className="flex-1">
+                      <label className="text-xs text-gray-400">Min Qty</label>
+                      <input
+                        type="number"
+                        min="2"
+                        value={tier.min_quantity}
+                        onChange={(e) => updateDiscountTier(idx, "min_quantity", parseInt(e.target.value) || 2)}
+                        className={`${inputCls} text-xs`}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="text-xs text-gray-400">Type</label>
+                      <select
+                        value={tier.discount_type}
+                        onChange={(e) => updateDiscountTier(idx, "discount_type", e.target.value)}
+                        className={`${inputCls} text-xs`}
+                      >
+                        <option value="percent">Percent Off</option>
+                        <option value="fixed_per_person">$ Off / Person</option>
+                      </select>
+                    </div>
+                    <div className="flex-1">
+                      <label className="text-xs text-gray-400">Value</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={tier.discount_value}
+                        onChange={(e) => updateDiscountTier(idx, "discount_value", parseFloat(e.target.value) || 0)}
+                        className={`${inputCls} text-xs`}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeDiscountTier(idx)}
+                      className="mt-4 p-1.5 text-gray-400 hover:text-danger hover:bg-white/5 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-white/10">

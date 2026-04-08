@@ -14,6 +14,8 @@ import {
   Mail,
   Bell,
   Send,
+  Phone,
+  Star,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -28,10 +30,17 @@ export default function SettingsPage() {
   const [savingCal, setSavingCal] = useState(false);
   const [savingEmail, setSavingEmail] = useState(false);
   const [savingNotif, setSavingNotif] = useState(false);
+  const [savingSms, setSavingSms] = useState(false);
+  const [savingReviews, setSavingReviews] = useState(false);
   const [savingPw, setSavingPw] = useState(false);
 
   const [testingEmail, setTestingEmail] = useState(false);
   const [testEmailAddr, setTestEmailAddr] = useState("");
+
+  const [testingSms, setTestingSms] = useState(false);
+  const [testSmsPhone, setTestSmsPhone] = useState("");
+
+  const [showTwilioToken, setShowTwilioToken] = useState(false);
 
   const [pwForm, setPwForm] = useState({
     current_password: "",
@@ -112,6 +121,29 @@ export default function SettingsPage() {
       addToast((err as Error).message, "error");
     } finally {
       setTestingEmail(false);
+    }
+  };
+
+  const handleTestSms = async () => {
+    if (!testSmsPhone) {
+      addToast("Enter a phone number to send a test SMS", "error");
+      return;
+    }
+    setTestingSms(true);
+    try {
+      const res = await fetchWithAuth("/api/sms/test", {
+        method: "POST",
+        body: JSON.stringify({ to: testSmsPhone }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed");
+      }
+      addToast("Test SMS sent successfully", "success");
+    } catch (err) {
+      addToast((err as Error).message, "error");
+    } finally {
+      setTestingSms(false);
     }
   };
 
@@ -572,6 +604,144 @@ export default function SettingsPage() {
                 placeholder="24"
               />
               <p className="text-xs text-gray-500 mt-1">How many hours before the booking to send the reminder</p>
+            </div>
+          </div>
+        </Section>
+
+        {/* SMS Configuration */}
+        <Section
+          icon={<Phone className="w-5 h-5" />}
+          title="SMS Configuration"
+          saving={savingSms}
+          onSave={() =>
+            saveSection(
+              ["twilio_account_sid", "twilio_auth_token", "twilio_phone_number", "sms_confirmation_enabled", "sms_reminder_enabled"],
+              setSavingSms
+            )
+          }
+        >
+          <div className="space-y-4">
+            <div>
+              <label className={labelCls}>Twilio Account SID</label>
+              <input
+                type="text"
+                value={settings.twilio_account_sid || ""}
+                onChange={(e) => update("twilio_account_sid", e.target.value)}
+                className={inputCls}
+                placeholder="AC..."
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Twilio Auth Token</label>
+              <div className="relative">
+                <input
+                  type={showTwilioToken ? "text" : "password"}
+                  value={settings.twilio_auth_token || ""}
+                  onChange={(e) => update("twilio_auth_token", e.target.value)}
+                  className={`${inputCls} pr-10`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowTwilioToken(!showTwilioToken)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                >
+                  {showTwilioToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className={labelCls}>Twilio Phone Number</label>
+              <input
+                type="text"
+                value={settings.twilio_phone_number || ""}
+                onChange={(e) => update("twilio_phone_number", e.target.value)}
+                className={inputCls}
+                placeholder="+15551234567"
+              />
+            </div>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={settings.sms_confirmation_enabled === "1" || settings.sms_confirmation_enabled === "true"}
+                onChange={(e) => update("sms_confirmation_enabled", e.target.checked ? "1" : "0")}
+                className="w-4 h-4 rounded border-white/20 accent-brand"
+              />
+              <div>
+                <span className="text-sm text-gray-300">SMS booking confirmations</span>
+                <div className="text-xs text-gray-500">Send SMS when a booking is confirmed</div>
+              </div>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={settings.sms_reminder_enabled === "1" || settings.sms_reminder_enabled === "true"}
+                onChange={(e) => update("sms_reminder_enabled", e.target.checked ? "1" : "0")}
+                className="w-4 h-4 rounded border-white/20 accent-brand"
+              />
+              <div>
+                <span className="text-sm text-gray-300">SMS booking reminders</span>
+                <div className="text-xs text-gray-500">Send SMS reminders before bookings</div>
+              </div>
+            </label>
+            <div className="pt-3 border-t border-white/10">
+              <div className="text-sm font-medium text-gray-300 mb-2">Test SMS</div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={testSmsPhone}
+                  onChange={(e) => setTestSmsPhone(e.target.value)}
+                  className={`${inputCls} flex-1`}
+                  placeholder="+15551234567"
+                />
+                <button
+                  onClick={handleTestSms}
+                  disabled={testingSms || !testSmsPhone}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors disabled:opacity-50 shrink-0"
+                >
+                  <Send className="w-4 h-4" />
+                  {testingSms ? "Sending..." : "Test"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        {/* Reviews */}
+        <Section
+          icon={<Star className="w-5 h-5" />}
+          title="Reviews"
+          saving={savingReviews}
+          onSave={() =>
+            saveSection(
+              ["review_request_enabled", "review_request_delay_hours"],
+              setSavingReviews
+            )
+          }
+        >
+          <div className="space-y-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={settings.review_request_enabled === "1" || settings.review_request_enabled === "true"}
+                onChange={(e) => update("review_request_enabled", e.target.checked ? "1" : "0")}
+                className="w-4 h-4 rounded border-white/20 accent-brand"
+              />
+              <div>
+                <span className="text-sm text-gray-300">Send review request emails after tours</span>
+                <div className="text-xs text-gray-500">Automatically ask customers to leave a review</div>
+              </div>
+            </label>
+            <div>
+              <label className={labelCls}>Delay (hours after tour ends)</label>
+              <input
+                type="number"
+                min="1"
+                value={settings.review_request_delay_hours || "24"}
+                onChange={(e) => update("review_request_delay_hours", e.target.value)}
+                className={inputCls}
+                placeholder="24"
+              />
+              <p className="text-xs text-gray-500 mt-1">How many hours after the slot ends to send the review request</p>
             </div>
           </div>
         </Section>

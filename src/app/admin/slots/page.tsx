@@ -11,6 +11,7 @@ import {
   Trash2,
   Calendar,
   X,
+  Truck,
 } from "lucide-react";
 
 interface Product {
@@ -31,6 +32,19 @@ interface Slot {
   product_color: string;
 }
 
+interface Resource {
+  id: number;
+  name: string;
+  type: string;
+}
+
+interface SlotResource {
+  id: number;
+  resource_id: number;
+  resource_name: string;
+  resource_type: string;
+}
+
 interface TimeSlotEntry {
   id: number;
   start_time: string;
@@ -39,6 +53,13 @@ interface TimeSlotEntry {
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 let nextTimeSlotId = 1;
+
+const resourceTypeColors: Record<string, string> = {
+  boat: "bg-blue-500/20 text-blue-400",
+  vehicle: "bg-green-500/20 text-green-400",
+  guide: "bg-purple-500/20 text-purple-400",
+  equipment: "bg-orange-500/20 text-orange-400",
+};
 
 export default function SlotsPage() {
   const { addToast } = useToast();
@@ -51,6 +72,11 @@ export default function SlotsPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+
+  // Resources
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [slotResources, setSlotResources] = useState<Record<number, SlotResource[]>>({});
+  const [assignResourceId, setAssignResourceId] = useState<string>("");
 
   const [bulkForm, setBulkForm] = useState({
     product_id: "",
@@ -69,6 +95,7 @@ export default function SlotsPage() {
 
   useEffect(() => {
     loadProducts();
+    loadResources();
   }, []);
 
   useEffect(() => {
@@ -80,6 +107,14 @@ export default function SlotsPage() {
       const res = await fetchWithAuth("/api/products");
       const data = await res.json();
       if (Array.isArray(data)) setProducts(data);
+    } catch {}
+  };
+
+  const loadResources = async () => {
+    try {
+      const res = await fetchWithAuth("/api/resources");
+      const data = await res.json();
+      if (Array.isArray(data)) setResources(data.filter((r: Resource & { active?: boolean }) => r.active !== false));
     } catch {}
   };
 
@@ -100,6 +135,46 @@ export default function SlotsPage() {
       addToast("Failed to load slots", "error");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSlotResources = async (slotId: number) => {
+    try {
+      const res = await fetchWithAuth(`/api/slots/${slotId}/resources`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setSlotResources((prev) => ({ ...prev, [slotId]: data }));
+      }
+    } catch {}
+  };
+
+  const assignResource = async (slotId: number) => {
+    if (!assignResourceId) return;
+    try {
+      const res = await fetchWithAuth(`/api/slots/${slotId}/resources`, {
+        method: "POST",
+        body: JSON.stringify({ resource_id: parseInt(assignResourceId) }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      addToast("Resource assigned", "success");
+      setAssignResourceId("");
+      loadSlotResources(slotId);
+    } catch {
+      addToast("Failed to assign resource", "error");
+    }
+  };
+
+  const removeResource = async (slotId: number, resourceId: number) => {
+    try {
+      const res = await fetchWithAuth(`/api/slots/${slotId}/resources`, {
+        method: "DELETE",
+        body: JSON.stringify({ resource_id: resourceId }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      addToast("Resource removed", "success");
+      loadSlotResources(slotId);
+    } catch {
+      addToast("Failed to remove resource", "error");
     }
   };
 
@@ -212,7 +287,7 @@ export default function SlotsPage() {
       }
 
       const totalSlots = dates.length * timeSlots.length;
-      addToast(`Created ${totalSlots} slots (${dates.length} days × ${timeSlots.length} time slots/day)`, "success");
+      addToast(`Created ${totalSlots} slots (${dates.length} days x ${timeSlots.length} time slots/day)`, "success");
       setBulkOpen(false);
       loadSlots();
     } catch (err) {
@@ -270,6 +345,16 @@ export default function SlotsPage() {
   const labelCls = "block text-sm font-medium text-gray-300 mb-1";
 
   const selectedSlots = selectedDate ? slotsForDate(selectedDate) : [];
+
+  // Load resources for visible slots when a date is selected
+  useEffect(() => {
+    if (selectedDate) {
+      const daySlots = slotsForDate(selectedDate);
+      daySlots.forEach((s) => {
+        if (!slotResources[s.id]) loadSlotResources(s.id);
+      });
+    }
+  }, [selectedDate, slots]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div>
@@ -389,39 +474,83 @@ export default function SlotsPage() {
               <p className="text-sm text-gray-400">No slots for this day.</p>
             )}
             <div className="space-y-3">
-              {selectedSlots.map((slot) => (
-                <div
-                  key={slot.id}
-                  className="bg-surface rounded-lg p-3 border border-white/5"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-2 h-6 rounded-full"
-                        style={{ backgroundColor: slot.product_color || "#1B6B8A" }}
-                      />
-                      <span className="text-sm font-medium text-white">{slot.product_name}</span>
+              {selectedSlots.map((slot) => {
+                const sr = slotResources[slot.id] || [];
+                return (
+                  <div
+                    key={slot.id}
+                    className="bg-surface rounded-lg p-3 border border-white/5"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-2 h-6 rounded-full"
+                          style={{ backgroundColor: slot.product_color || "#1B6B8A" }}
+                        />
+                        <span className="text-sm font-medium text-white">{slot.product_name}</span>
+                      </div>
+                      {slot.booked_seats === 0 && (
+                        <button
+                          onClick={() => handleDeleteSlot(slot.id)}
+                          className="p-1 text-gray-400 hover:text-danger transition-colors"
+                          title="Delete slot"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
-                    {slot.booked_seats === 0 && (
-                      <button
-                        onClick={() => handleDeleteSlot(slot.id)}
-                        className="p-1 text-gray-400 hover:text-danger transition-colors"
-                        title="Delete slot"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+                    <div className="text-xs text-gray-400">
+                      {slot.start_time} - {slot.end_time}
+                    </div>
+                    <div className="text-xs mt-1">
+                      <span className={slot.booked_seats >= slot.total_seats ? "text-danger" : "text-success"}>
+                        {slot.booked_seats}/{slot.total_seats} booked
+                      </span>
+                    </div>
+
+                    {/* Resources section */}
+                    <div className="mt-2 pt-2 border-t border-white/5">
+                      <div className="flex items-center gap-1 mb-1.5">
+                        <Truck className="w-3 h-3 text-gray-500" />
+                        <span className="text-xs text-gray-500 font-medium">Resources</span>
+                      </div>
+                      {sr.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {sr.map((r) => (
+                            <span key={r.id} className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${resourceTypeColors[r.resource_type] || "bg-gray-500/20 text-gray-400"}`}>
+                              {r.resource_name}
+                              <button onClick={() => removeResource(slot.id, r.resource_id)} className="hover:text-danger ml-0.5" title="Remove">
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1">
+                        <select
+                          value={assignResourceId}
+                          onChange={(e) => setAssignResourceId(e.target.value)}
+                          className="flex-1 px-2 py-1 bg-surface border border-white/10 rounded text-white text-xs focus:outline-none focus:border-brand"
+                        >
+                          <option value="">Assign resource...</option>
+                          {resources
+                            .filter((r) => !sr.some((s) => s.resource_id === r.id))
+                            .map((r) => (
+                              <option key={r.id} value={r.id}>{r.name} ({r.type})</option>
+                            ))}
+                        </select>
+                        <button
+                          onClick={() => assignResource(slot.id)}
+                          disabled={!assignResourceId}
+                          className="px-2 py-1 text-xs bg-brand/20 hover:bg-brand/30 text-brand-light rounded transition-colors disabled:opacity-30"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-400">
-                    {slot.start_time} - {slot.end_time}
-                  </div>
-                  <div className="text-xs mt-1">
-                    <span className={slot.booked_seats >= slot.total_seats ? "text-danger" : "text-success"}>
-                      {slot.booked_seats}/{slot.total_seats} booked
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Quick add form (inline) */}
