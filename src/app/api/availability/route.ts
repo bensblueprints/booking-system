@@ -29,6 +29,18 @@ export async function GET(request: Request) {
     const date_to = `${month}-${String(lastDay).padStart(2, "0")}`;
 
     const db = getDb();
+
+    // Get blackout dates for this product
+    const blackoutRows = db
+      .prepare(
+        `SELECT date FROM blackout_dates
+         WHERE (product_id = ? OR product_id IS NULL)
+           AND date >= ? AND date <= ?`
+      )
+      .all(product_id, date_from, date_to) as { date: string }[];
+
+    const blackoutSet = new Set(blackoutRows.map((r) => r.date));
+
     const slots = db
       .prepare(
         `SELECT s.id, s.date, s.start_time, s.end_time,
@@ -53,7 +65,7 @@ export async function GET(request: Request) {
       available_seats: number;
     }[];
 
-    // Group by date
+    // Group by date, filtering out blackout dates
     const grouped: Record<
       string,
       {
@@ -69,6 +81,9 @@ export async function GET(request: Request) {
     > = {};
 
     for (const slot of slots) {
+      // Skip slots on blackout dates
+      if (blackoutSet.has(slot.date)) continue;
+
       if (!grouped[slot.date]) {
         grouped[slot.date] = { date: slot.date, slots: [] };
       }

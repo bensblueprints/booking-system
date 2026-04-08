@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getAdminFromRequest } from "@/lib/auth";
+import { validatePromoCode, applyPromoCode } from "@/lib/promo";
+import { sendBookingEmail } from "@/lib/email";
+import crypto from "crypto";
 
 export async function GET(request: Request) {
   const admin = getAdminFromRequest(request);
@@ -58,7 +61,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { slot_id, customer_name, customer_email, customer_phone, party_size, notes } = body;
+    const {
+      slot_id, customer_name, customer_email, customer_phone,
+      party_size, notes, promo_code, addons,
+    } = body;
 
     if (!slot_id || !customer_name || !customer_email) {
       return NextResponse.json(
@@ -75,6 +81,8 @@ export async function POST(request: Request) {
       .get(slot_id) as {
       id: number;
       product_id: number;
+      date: string;
+      start_time: string;
       total_seats: number;
       booked_seats: number;
     } | undefined;
@@ -96,36 +104,172 @@ export async function POST(request: Request) {
       .get(slot.product_id) as {
       price: number;
       deposit_percent: number;
+      cutoff_hours: number;
+      min_participants: number;
     };
 
-    const total_amount = product.price * size;
-    const deposit_amount = total_amount * (product.deposit_percent / 100);
-
-    const result = db
-      .prepare(
-        `INSERT INTO bookings (slot_id, product_id, customer_name, customer_email, customer_phone, party_size, total_amount, deposit_amount, notes)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-      )
-      .run(
-        slot_id,
-        slot.product_id,
-        customer_name,
-        customer_email,
-        customer_phone || null,
-        size,
-        total_amount,
-        deposit_amount,
-        notes || null
+    // Check minimum participants
+    if (size < (product.min_participants || 1)) {
+      return NextResponse.json(
+        { error: `Minimum ${product.min_participants} participant(s) required` },
+        { status: 400 }
       );
+    }
 
-    db.prepare("UPDATE slots SET booked_seats = booked_seats + ? WHERE id = ?").run(
-      size,
-      slot_id
-    );
+    // Check cutoff hours
+    if (product.cutoff_hours > 0) {
+      const slotDateTime = new Date(`${slot.date}T${slot.start_time}`);
+      const cutoffTime = new Date(Date.now() + product.cutoff_hours * 60 * 60 * 1000);
+      if (slotDateTime < cutoffTime) {
+        return NextResponse.json(
+          { error: `Bookings must be made at least ${product.cutoff_hours} hour(s) in advance` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Check blackout dates
+    const blackout = db
+      .prepare(
+        "SELECT id FROM blackout_dates WHERE date = ? AND (product_id = ? OR product_id IS NULL)"
+      )
+      .get(slot.date, slot.product_id);
+
+    if (blackout) {
+      return NextResponse.json(
+        { error: "This date is unavailable for booking" },
+        { status: 400 }
+      );
+    }
+
+    // Calculate base total
+    let total_amount = product.price * size;
+    let discount_amount = 0;
+    let promo_code_id: number | null = null;
+
+    // Validate promo code if provided
+    if (promo_code) {
+      const promoResult = validatePromoCode(promo_code, slot.product_id, total_amount);
+      if (!promoResult.valid) {
+        return NextResponse.json(
+          { error: promoResult.error },
+          { status: 400 }
+        );
+      }
+      discount_amount = promoResult.discount_amount || 0;
+      promo_code_id = promoResult.promo!.id;
+    }
+
+    // Calculate addon totals
+    let addons_total = 0;
+    const addonItems: { addon_id: number; quantity: number; unit_price: number; total_price: number }[] = [];
+
+    if (addons && Array.isArray(addons) && addons.length > 0) {
+      for (const item of addons) {
+        const addon = db
+          .prepare("SELECT * FROM addons WHERE id = ? AND active = 1")
+          .get(item.addon_id) as {
+          id: number;
+          price: number;
+          max_quantity: number;
+          per_person: number;
+          product_id: number | null;
+        } | undefined;
+
+        if (!addon) {
+          return NextResponse.json(
+            { error: `Addon ${item.addon_id} not found or inactive` },
+            { status: 400 }
+          );
+        }
+
+        // Check product restriction
+        if (addon.product_id !== null && addon.product_id !== slot.product_id) {
+          return NextResponse.json(
+            { error: `Addon ${item.addon_id} is not available for this product` },
+            { status: 400 }
+          );
+        }
+
+        const quantity = item.quantity || 1;
+        if (quantity > addon.max_quantity) {
+          return NextResponse.json(
+            { error: `Maximum quantity for addon is ${addon.max_quantity}` },
+            { status: 400 }
+          );
+        }
+
+        const multiplier = addon.per_person ? size : 1;
+        const unit_price = addon.price;
+        const total_price = unit_price * quantity * multiplier;
+        addons_total += total_price;
+
+        addonItems.push({ addon_id: addon.id, quantity: quantity * multiplier, unit_price, total_price });
+      }
+    }
+
+    // Final totals
+    total_amount = total_amount + addons_total - discount_amount;
+    if (total_amount < 0) total_amount = 0;
+
+    const deposit_amount = total_amount * (product.deposit_percent / 100);
+    const manage_token = crypto.randomUUID();
+
+    const insertBooking = db.transaction(() => {
+      const result = db
+        .prepare(
+          `INSERT INTO bookings (slot_id, product_id, customer_name, customer_email, customer_phone, party_size, total_amount, deposit_amount, notes, promo_code_id, discount_amount, addons_total, manage_token, status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed')`
+        )
+        .run(
+          slot_id,
+          slot.product_id,
+          customer_name,
+          customer_email,
+          customer_phone || null,
+          size,
+          total_amount,
+          deposit_amount,
+          notes || null,
+          promo_code_id,
+          discount_amount,
+          addons_total,
+          manage_token
+        );
+
+      const bookingId = result.lastInsertRowid as number;
+
+      // Insert booking addons
+      const insertAddon = db.prepare(
+        "INSERT INTO booking_addons (booking_id, addon_id, quantity, unit_price, total_price) VALUES (?, ?, ?, ?, ?)"
+      );
+      for (const item of addonItems) {
+        insertAddon.run(bookingId, item.addon_id, item.quantity, item.unit_price, item.total_price);
+      }
+
+      // Update slot seats
+      db.prepare("UPDATE slots SET booked_seats = booked_seats + ? WHERE id = ?").run(size, slot_id);
+
+      // Apply promo code usage
+      if (promo_code_id) {
+        applyPromoCode(promo_code_id);
+      }
+
+      return bookingId;
+    });
+
+    const bookingId = insertBooking();
 
     const booking = db
       .prepare("SELECT * FROM bookings WHERE id = ?")
-      .get(result.lastInsertRowid);
+      .get(bookingId);
+
+    // Try to send confirmation email (non-blocking)
+    try {
+      await sendBookingEmail(bookingId as number, "confirmation");
+    } catch {
+      // Don't fail the booking if email fails
+    }
 
     return NextResponse.json(booking, { status: 201 });
   } catch (error) {

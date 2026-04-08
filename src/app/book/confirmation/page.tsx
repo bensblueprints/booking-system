@@ -7,6 +7,14 @@ import { Check, Loader2, AlertCircle, Printer } from "lucide-react";
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */
 /* ------------------------------------------------------------------ */
+interface BookingAddon {
+  name: string;
+  quantity: number;
+  price: number;
+  per_person: boolean;
+  line_total: number;
+}
+
 interface BookingDetails {
   id: number;
   customer_name: string;
@@ -23,6 +31,11 @@ interface BookingDetails {
   date: string;
   start_time: string;
   end_time: string;
+  manage_token?: string;
+  addons?: BookingAddon[];
+  discount_amount?: number;
+  discount_description?: string;
+  base_amount?: number;
 }
 
 /* ------------------------------------------------------------------ */
@@ -136,6 +149,9 @@ function ConfirmationInner() {
   }
 
   const paid = status === "success" || sessionId;
+  const baseAmount = booking.base_amount ?? booking.product_price * booking.party_size;
+  const hasAddons = booking.addons && booking.addons.length > 0;
+  const hasDiscount = (booking.discount_amount ?? 0) > 0;
 
   return (
     <div className="max-w-lg mx-auto px-4 py-12">
@@ -227,6 +243,7 @@ function ConfirmationInner() {
           />
           {booking.notes && <Row label="Notes" value={booking.notes} />}
 
+          {/* Price Breakdown */}
           <div
             style={{
               borderTop: `1px solid ${C.gray100}`,
@@ -234,6 +251,48 @@ function ConfirmationInner() {
               marginTop: 8,
             }}
           />
+
+          <div className="flex justify-between">
+            <span style={{ color: C.gray500 }}>
+              Base (${booking.product_price.toFixed(2)} x {booking.party_size})
+            </span>
+            <span style={{ fontWeight: 600, color: C.gray900 }}>
+              ${baseAmount.toFixed(2)}
+            </span>
+          </div>
+
+          {hasAddons &&
+            booking.addons!.map((addon, idx) => (
+              <div key={idx} className="flex justify-between">
+                <span style={{ color: C.gray500 }}>
+                  {addon.name} x{addon.quantity}
+                  {addon.per_person ? " (per person)" : ""}
+                </span>
+                <span style={{ fontWeight: 600, color: C.gray900 }}>
+                  ${addon.line_total.toFixed(2)}
+                </span>
+              </div>
+            ))}
+
+          {hasDiscount && (
+            <div className="flex justify-between">
+              <span style={{ color: "#22c55e" }}>
+                Discount{booking.discount_description ? ` (${booking.discount_description})` : ""}
+              </span>
+              <span style={{ fontWeight: 600, color: "#22c55e" }}>
+                -${(booking.discount_amount ?? 0).toFixed(2)}
+              </span>
+            </div>
+          )}
+
+          <div
+            style={{
+              borderTop: `1px solid ${C.gray100}`,
+              paddingTop: 8,
+              marginTop: 4,
+            }}
+          />
+
           <Row label="Total" value={`$${booking.total_amount.toFixed(2)}`} bold />
           <Row
             label="Deposit"
@@ -275,6 +334,26 @@ function ConfirmationInner() {
           <Printer size={16} />
           Print
         </button>
+        {booking.manage_token && (
+          <a
+            href={`/book/manage/${booking.manage_token}`}
+            style={{
+              background: C.white,
+              border: `1px solid ${C.brand}`,
+              color: C.brand,
+              padding: "10px 20px",
+              borderRadius: 8,
+              fontWeight: 600,
+              fontSize: 14,
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            Manage Your Booking
+          </a>
+        )}
         <a
           href="/book"
           style={{
@@ -295,7 +374,7 @@ function ConfirmationInner() {
       {/* Print styles */}
       <style>{`
         @media print {
-          header, footer, button, a[href="/book"] { display: none !important; }
+          header, footer, button, a[href="/book"], a[href^="/book/manage"] { display: none !important; }
           body { background: white !important; }
         }
       `}</style>

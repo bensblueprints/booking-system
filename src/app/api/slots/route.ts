@@ -39,6 +39,14 @@ export async function GET(request: Request) {
       params.push(date_to);
     }
 
+    // Filter out blackout dates for non-admin
+    if (!isAdmin) {
+      query += ` AND s.date NOT IN (
+        SELECT bd.date FROM blackout_dates bd
+        WHERE (bd.product_id = s.product_id OR bd.product_id IS NULL)
+      )`;
+    }
+
     query += " ORDER BY s.date, s.start_time";
 
     const slots = db.prepare(query).all(...params);

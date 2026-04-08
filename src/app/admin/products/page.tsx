@@ -18,6 +18,8 @@ interface Product {
   season_end: string | null;
   color: string;
   active: number;
+  cutoff_hours?: number;
+  min_participants?: number;
 }
 
 const defaultForm = {
@@ -31,6 +33,8 @@ const defaultForm = {
   season_end: "",
   color: "#1B6B8A",
   active: true,
+  cutoff_hours: "0",
+  min_participants: "1",
 };
 
 function CopyButton({ text, label }: { text: string; label?: string }) {
@@ -98,6 +102,8 @@ export default function ProductsPage() {
       season_end: p.season_end || "",
       color: p.color || "#1B6B8A",
       active: !!p.active,
+      cutoff_hours: String(p.cutoff_hours ?? 0),
+      min_participants: String(p.min_participants ?? 1),
     });
     setModalOpen(true);
   };
@@ -122,6 +128,8 @@ export default function ProductsPage() {
         season_end: form.season_end || null,
         color: form.color,
         active: form.active ? 1 : 0,
+        cutoff_hours: parseInt(form.cutoff_hours) || 0,
+        min_participants: parseInt(form.min_participants) || 1,
       };
 
       const url = editId ? `/api/products/${editId}` : "/api/products";
@@ -491,6 +499,28 @@ export default function ProductsPage() {
                 onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })}
                 className={inputCls}
               />
+            </div>
+            <div>
+              <label className={labelCls}>Booking Cut-off (hours before)</label>
+              <input
+                type="number"
+                min="0"
+                value={form.cutoff_hours}
+                onChange={(e) => setForm({ ...form, cutoff_hours: e.target.value })}
+                className={inputCls}
+              />
+              <p className="text-xs text-gray-500 mt-1">Prevent bookings within X hours of start time. 0 = no cut-off</p>
+            </div>
+            <div>
+              <label className={labelCls}>Minimum Participants</label>
+              <input
+                type="number"
+                min="1"
+                value={form.min_participants}
+                onChange={(e) => setForm({ ...form, min_participants: e.target.value })}
+                className={inputCls}
+              />
+              <p className="text-xs text-gray-500 mt-1">Minimum party size required per booking</p>
             </div>
             <div>
               <label className={labelCls}>Season Start (MM-DD)</label>

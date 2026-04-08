@@ -12,6 +12,12 @@ import {
   AlertCircle,
   MapPin,
   DollarSign,
+  Plus,
+  Minus,
+  Tag,
+  X,
+  Gift,
+  ShoppingCart,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -27,6 +33,7 @@ interface Product {
   duration_minutes: number;
   color: string;
   active: number;
+  cutoff_hours?: number;
 }
 
 interface SlotInfo {
@@ -61,6 +68,27 @@ interface Booking {
   payment_status: string;
   notes: string | null;
   created_at: string;
+  manage_token?: string;
+}
+
+interface Addon {
+  id: number;
+  product_id: number;
+  name: string;
+  description: string | null;
+  price: number;
+  per_person: boolean;
+  max_quantity: number;
+  active: number;
+}
+
+interface PromoValidation {
+  valid: boolean;
+  discount_type?: string;
+  discount_value?: number;
+  discount_description?: string;
+  discount_amount?: number;
+  error?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -83,13 +111,15 @@ const C = {
   gray800: "#1f2937",
   gray900: "#111827",
   success: "#22c55e",
+  successLight: "#dcfce7",
   danger: "#ef4444",
+  dangerLight: "#fef2f2",
 };
 
 /* ------------------------------------------------------------------ */
 /*  Step indicator                                                    */
 /* ------------------------------------------------------------------ */
-const STEPS = ["Tour", "Date", "Time", "Details", "Confirm"];
+const STEPS = ["Tour", "Date", "Time", "Details", "Extras", "Pay"];
 
 function StepBar({ current }: { current: number }) {
   return (
@@ -173,7 +203,7 @@ function ErrorBanner({ msg, onRetry }: { msg: string; onRetry?: () => void }) {
   return (
     <div
       style={{
-        background: "#fef2f2",
+        background: C.dangerLight,
         border: `1px solid ${C.danger}`,
         borderRadius: 12,
         padding: "16px 20px",
@@ -311,6 +341,7 @@ function BookingFlowInner() {
   const [availability, setAvailability] = useState<DateAvailability[]>([]);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [blackoutDates, setBlackoutDates] = useState<Set<string>>(new Set());
 
   // Time slot
   const [selectedSlot, setSelectedSlot] = useState<SlotInfo | null>(null);
@@ -321,6 +352,17 @@ function BookingFlowInner() {
   const [custPhone, setCustPhone] = useState("");
   const [partySize, setPartySize] = useState(1);
   const [notes, setNotes] = useState("");
+
+  // Add-ons
+  const [addons, setAddons] = useState<Addon[]>([]);
+  const [loadingAddons, setLoadingAddons] = useState(false);
+  const [addonQuantities, setAddonQuantities] = useState<Record<number, number>>({});
+
+  // Promo code
+  const [promoCode, setPromoCode] = useState("");
+  const [promoValidation, setPromoValidation] = useState<PromoValidation | null>(null);
+  const [validatingPromo, setValidatingPromo] = useState(false);
+  const [promoShake, setPromoShake] = useState(false);
 
   // Booking / payment
   const [submitting, setSubmitting] = useState(false);
@@ -355,6 +397,18 @@ function BookingFlowInner() {
     fetchProducts();
   }, [fetchProducts]);
 
+  /* Fetch blackout dates ----------------------------------------- */
+  useEffect(() => {
+    if (selectedProduct && step >= 2) {
+      fetch(`/api/blackout-dates?product_id=${selectedProduct.id}`)
+        .then((r) => r.json())
+        .then((data: { dates?: string[] }) => {
+          setBlackoutDates(new Set(data.dates || []));
+        })
+        .catch(() => setBlackoutDates(new Set()));
+    }
+  }, [selectedProduct, step]);
+
   /* Fetch availability ------------------------------------------- */
   const fetchAvailability = useCallback(
     (productId: number, year: number, month: number) => {
@@ -377,6 +431,20 @@ function BookingFlowInner() {
     }
   }, [selectedProduct, calYear, calMonth, step, fetchAvailability]);
 
+  /* Fetch add-ons ------------------------------------------------ */
+  useEffect(() => {
+    if (selectedProduct && step === 5) {
+      setLoadingAddons(true);
+      fetch(`/api/addons?product_id=${selectedProduct.id}`)
+        .then((r) => r.json())
+        .then((data: Addon[]) => {
+          setAddons(Array.isArray(data) ? data.filter(a => a.active) : []);
+        })
+        .catch(() => setAddons([]))
+        .finally(() => setLoadingAddons(false));
+    }
+  }, [selectedProduct, step]);
+
   /* Availability lookup map -------------------------------------- */
   const availMap = new Map<string, DateAvailability>();
   for (const d of availability) {
@@ -388,6 +456,9 @@ function BookingFlowInner() {
     setSelectedProduct(p);
     setSelectedDate(null);
     setSelectedSlot(null);
+    setAddonQuantities({});
+    setPromoCode("");
+    setPromoValidation(null);
     setStep(2);
   }
 
@@ -423,11 +494,93 @@ function BookingFlowInner() {
     setSelectedDate(null);
   }
 
+  function goToExtras() {
+    setStep(5);
+  }
+
+  /* Cutoff check for time slots ---------------------------------- */
+  function isSlotWithinCutoff(slot: SlotInfo, date: string): boolean {
+    if (!selectedProduct?.cutoff_hours) return false;
+    const slotDateTime = new Date(`${date}T${slot.start_time}`);
+    const cutoffMs = selectedProduct.cutoff_hours * 60 * 60 * 1000;
+    const cutoffTime = new Date(Date.now() + cutoffMs);
+    return slotDateTime <= cutoffTime;
+  }
+
+  /* Addon quantity change ---------------------------------------- */
+  function setAddonQty(addonId: number, qty: number) {
+    setAddonQuantities(prev => ({ ...prev, [addonId]: qty }));
+  }
+
+  /* Promo code validation ---------------------------------------- */
+  async function validatePromo() {
+    if (!promoCode.trim() || !selectedProduct) return;
+    setValidatingPromo(true);
+    setPromoValidation(null);
+    try {
+      const res = await fetch("/api/promo-codes/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: promoCode.trim(),
+          product_id: selectedProduct.id,
+          amount: subtotalBeforeDiscount,
+        }),
+      });
+      const data: PromoValidation = await res.json();
+      if (data.valid) {
+        setPromoValidation(data);
+      } else {
+        setPromoValidation({ valid: false, error: data.error || "Invalid promo code" });
+        setPromoShake(true);
+        setTimeout(() => setPromoShake(false), 500);
+      }
+    } catch {
+      setPromoValidation({ valid: false, error: "Could not validate promo code" });
+      setPromoShake(true);
+      setTimeout(() => setPromoShake(false), 500);
+    } finally {
+      setValidatingPromo(false);
+    }
+  }
+
+  function removePromo() {
+    setPromoCode("");
+    setPromoValidation(null);
+  }
+
+  /* Price calculations ------------------------------------------- */
+  const basePrice = selectedProduct ? selectedProduct.price * partySize : 0;
+
+  const addonsTotal = addons.reduce((sum, addon) => {
+    const qty = addonQuantities[addon.id] || 0;
+    if (qty <= 0) return sum;
+    const unitPrice = addon.per_person ? addon.price * partySize : addon.price;
+    return sum + unitPrice * qty;
+  }, 0);
+
+  const subtotalBeforeDiscount = basePrice + addonsTotal;
+
+  const discountAmount = promoValidation?.valid && promoValidation.discount_amount
+    ? promoValidation.discount_amount
+    : 0;
+
+  const totalPrice = Math.max(0, subtotalBeforeDiscount - discountAmount);
+  const depositDue = selectedProduct
+    ? totalPrice * (selectedProduct.deposit_percent / 100)
+    : 0;
+
+  /* Submit booking ----------------------------------------------- */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedSlot || !selectedProduct) return;
     setSubmitting(true);
     setErrorMsg("");
+
+    // Build addons array
+    const selectedAddons = Object.entries(addonQuantities)
+      .filter(([, qty]) => qty > 0)
+      .map(([id, qty]) => ({ addon_id: Number(id), quantity: qty }));
 
     try {
       // 1. Create booking
@@ -441,6 +594,8 @@ function BookingFlowInner() {
           customer_phone: custPhone.trim() || undefined,
           party_size: partySize,
           notes: notes.trim() || undefined,
+          promo_code: promoValidation?.valid ? promoCode.trim() : undefined,
+          addons: selectedAddons.length > 0 ? selectedAddons : undefined,
         }),
       });
 
@@ -472,7 +627,7 @@ function BookingFlowInner() {
       }
 
       // 3. Show confirmation (no stripe)
-      setStep(5);
+      setStep(6);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Something went wrong";
       setErrorMsg(msg);
@@ -480,12 +635,6 @@ function BookingFlowInner() {
       setSubmitting(false);
     }
   }
-
-  /* Price calculations ------------------------------------------- */
-  const totalPrice = selectedProduct ? selectedProduct.price * partySize : 0;
-  const depositDue = selectedProduct
-    ? totalPrice * (selectedProduct.deposit_percent / 100)
-    : 0;
 
   /* ============================================================== */
   /*  RENDER                                                        */
@@ -754,37 +903,42 @@ function BookingFlowInner() {
                       )}`;
                     const isPast =
                       new Date(dateStr + "T23:59:59") < new Date();
+                    const isBlackout = blackoutDates.has(dateStr);
+                    const isDisabled = !hasSlots || isPast || isBlackout;
 
                     return (
                       <button
                         key={day}
-                        disabled={!hasSlots || isPast}
-                        onClick={() => hasSlots && !isPast && selectDate(dateStr)}
+                        disabled={isDisabled}
+                        onClick={() => !isDisabled && selectDate(dateStr)}
                         style={{
                           aspectRatio: "1",
                           borderRadius: 10,
                           border: isToday
                             ? `2px solid ${C.brand}`
                             : "2px solid transparent",
-                          background:
-                            hasSlots && !isPast ? C.white : C.gray50,
-                          cursor:
-                            hasSlots && !isPast ? "pointer" : "default",
+                          background: isBlackout
+                            ? "#f3f4f6"
+                            : hasSlots && !isPast
+                            ? C.white
+                            : C.gray50,
+                          cursor: isDisabled ? "default" : "pointer",
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
                           justifyContent: "center",
                           gap: 2,
                           transition: "all .15s",
-                          opacity: isPast ? 0.4 : 1,
+                          opacity: isPast ? 0.4 : isBlackout ? 0.5 : 1,
+                          position: "relative",
                         }}
                         onMouseEnter={(e) => {
-                          if (hasSlots && !isPast)
+                          if (!isDisabled)
                             (e.currentTarget as HTMLButtonElement).style.background =
                               "#e6f3f8";
                         }}
                         onMouseLeave={(e) => {
-                          if (hasSlots && !isPast)
+                          if (!isDisabled)
                             (e.currentTarget as HTMLButtonElement).style.background =
                               C.white;
                         }}
@@ -793,12 +947,25 @@ function BookingFlowInner() {
                           style={{
                             fontSize: 15,
                             fontWeight: 500,
-                            color: hasSlots && !isPast ? C.gray900 : C.gray300,
+                            color: isDisabled ? C.gray300 : C.gray900,
+                            textDecoration: isBlackout ? "line-through" : "none",
                           }}
                         >
                           {day}
                         </span>
-                        {hasSlots && !isPast && (
+                        {isBlackout && !isPast && (
+                          <span
+                            style={{
+                              fontSize: 8,
+                              color: C.danger,
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            Closed
+                          </span>
+                        )}
+                        {hasSlots && !isPast && !isBlackout && (
                           <span
                             style={{
                               fontSize: 10,
@@ -845,62 +1012,88 @@ function BookingFlowInner() {
           </p>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            {(availMap.get(selectedDate)?.slots || []).map((slot) => (
-              <button
-                key={slot.id}
-                onClick={() => selectSlot(slot)}
-                style={{
-                  background: C.white,
-                  borderRadius: 12,
-                  border: `1px solid ${C.gray200}`,
-                  padding: "16px 20px",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  transition: "all .2s",
-                  boxShadow: "0 1px 3px rgba(0,0,0,.04)",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor =
-                    C.brand;
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                    "0 4px 16px rgba(27,107,138,.1)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor =
-                    C.gray200;
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                    "0 1px 3px rgba(0,0,0,.04)";
-                }}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} style={{ color: C.brand }} />
-                    <span
-                      style={{
-                        fontWeight: 600,
-                        fontSize: 16,
-                        color: C.gray900,
-                      }}
-                    >
-                      {formatTime(slot.start_time)} &ndash;{" "}
-                      {formatTime(slot.end_time)}
-                    </span>
+            {(availMap.get(selectedDate)?.slots || []).map((slot) => {
+              const isCutoff = isSlotWithinCutoff(slot, selectedDate);
+              return (
+                <button
+                  key={slot.id}
+                  disabled={isCutoff}
+                  onClick={() => !isCutoff && selectSlot(slot)}
+                  style={{
+                    background: isCutoff ? C.gray50 : C.white,
+                    borderRadius: 12,
+                    border: `1px solid ${isCutoff ? C.gray200 : C.gray200}`,
+                    padding: "16px 20px",
+                    cursor: isCutoff ? "not-allowed" : "pointer",
+                    textAlign: "left",
+                    transition: "all .2s",
+                    boxShadow: "0 1px 3px rgba(0,0,0,.04)",
+                    opacity: isCutoff ? 0.6 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isCutoff) {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor =
+                        C.brand;
+                      (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                        "0 4px 16px rgba(27,107,138,.1)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isCutoff) {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor =
+                        C.gray200;
+                      (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                        "0 1px 3px rgba(0,0,0,.04)";
+                    }
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock size={16} style={{ color: isCutoff ? C.gray400 : C.brand }} />
+                      <span
+                        style={{
+                          fontWeight: 600,
+                          fontSize: 16,
+                          color: isCutoff ? C.gray400 : C.gray900,
+                        }}
+                      >
+                        {formatTime(slot.start_time)} &ndash;{" "}
+                        {formatTime(slot.end_time)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {isCutoff ? (
+                        <span
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: C.danger,
+                            background: C.dangerLight,
+                            padding: "2px 8px",
+                            borderRadius: 6,
+                          }}
+                        >
+                          Booking closed
+                        </span>
+                      ) : (
+                        <>
+                          <Users size={14} style={{ color: C.brand }} />
+                          <span
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 500,
+                              color: C.brand,
+                            }}
+                          >
+                            {slot.available_seats} available
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Users size={14} style={{ color: C.brand }} />
-                    <span
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 500,
-                        color: C.brand,
-                      }}
-                    >
-                      {slot.available_seats} available
-                    </span>
-                  </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -922,7 +1115,7 @@ function BookingFlowInner() {
               >
                 Your Details
               </h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-4">
                 {/* Name */}
                 <div>
                   <label
@@ -1158,20 +1351,13 @@ function BookingFlowInner() {
                 </div>
 
                 <PrimaryBtn
-                  type="submit"
-                  disabled={submitting || !custName || !custEmail}
+                  onClick={goToExtras}
+                  disabled={!custName || !custEmail}
                   style={{ width: "100%", marginTop: 8 }}
                 >
-                  {submitting ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <Loader2 size={18} className="animate-spin" />
-                      Processing...
-                    </span>
-                  ) : (
-                    `Complete Booking — $${depositDue.toFixed(2)} deposit`
-                  )}
+                  Continue to Extras
                 </PrimaryBtn>
-              </form>
+              </div>
             </div>
 
             {/* Summary sidebar */}
@@ -1257,7 +1443,7 @@ function BookingFlowInner() {
                       ${selectedProduct.price.toFixed(2)} x {partySize}
                     </span>
                     <span style={{ fontWeight: 600, color: C.gray900 }}>
-                      ${totalPrice.toFixed(2)}
+                      ${basePrice.toFixed(2)}
                     </span>
                   </div>
                   <div
@@ -1293,15 +1479,640 @@ function BookingFlowInner() {
         </div>
       )}
 
-      {/* ---- STEP 5: Confirmation ---- */}
-      {step === 5 && booking && selectedProduct && selectedDate && selectedSlot && (
+      {/* ---- STEP 5: Add-ons & Promo ---- */}
+      {step === 5 && selectedProduct && selectedDate && selectedSlot && (
+        <div>
+          <BackBtn onClick={() => setStep(4)} />
+          <div className="grid gap-8 lg:grid-cols-5">
+            <div className="lg:col-span-3">
+              <h2
+                style={{ color: C.gray900 }}
+                className="text-2xl font-bold mb-2"
+              >
+                Extras &amp; Promo
+              </h2>
+              <p style={{ color: C.gray500 }} className="mb-6 text-sm">
+                Enhance your experience with add-ons or apply a promo code.
+              </p>
+
+              {/* Add-ons */}
+              {loadingAddons ? (
+                <Spinner text="Loading add-ons..." />
+              ) : addons.length > 0 ? (
+                <div style={{ marginBottom: 32 }}>
+                  <h3
+                    style={{
+                      fontWeight: 600,
+                      fontSize: 16,
+                      color: C.gray900,
+                      marginBottom: 12,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <Gift size={18} style={{ color: C.brand }} />
+                    Available Add-ons
+                  </h3>
+                  <div className="space-y-3">
+                    {addons.map((addon) => {
+                      const qty = addonQuantities[addon.id] || 0;
+                      const unitPrice = addon.per_person
+                        ? addon.price * partySize
+                        : addon.price;
+                      const lineTotal = unitPrice * qty;
+                      return (
+                        <div
+                          key={addon.id}
+                          style={{
+                            background: C.white,
+                            borderRadius: 12,
+                            border: `1px solid ${qty > 0 ? C.brand : C.gray200}`,
+                            padding: "16px 20px",
+                            transition: "all .2s",
+                            boxShadow: qty > 0
+                              ? "0 2px 12px rgba(27,107,138,.1)"
+                              : "0 1px 3px rgba(0,0,0,.04)",
+                          }}
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div style={{ flex: 1 }}>
+                              <div
+                                style={{
+                                  fontWeight: 600,
+                                  fontSize: 15,
+                                  color: C.gray900,
+                                  marginBottom: 2,
+                                }}
+                              >
+                                {addon.name}
+                              </div>
+                              {addon.description && (
+                                <p
+                                  style={{
+                                    fontSize: 13,
+                                    color: C.gray500,
+                                    marginBottom: 6,
+                                    margin: 0,
+                                  }}
+                                >
+                                  {addon.description}
+                                </p>
+                              )}
+                              <div
+                                style={{
+                                  fontSize: 14,
+                                  fontWeight: 600,
+                                  color: C.brand,
+                                  marginTop: 4,
+                                }}
+                              >
+                                ${addon.price.toFixed(2)}
+                                {addon.per_person && (
+                                  <span
+                                    style={{
+                                      fontSize: 12,
+                                      fontWeight: 400,
+                                      color: C.gray400,
+                                      marginLeft: 4,
+                                    }}
+                                  >
+                                    per person
+                                  </span>
+                                )}
+                                {addon.per_person && partySize > 1 && (
+                                  <span
+                                    style={{
+                                      fontSize: 12,
+                                      color: C.gray500,
+                                      marginLeft: 8,
+                                    }}
+                                  >
+                                    (${unitPrice.toFixed(2)} total)
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div
+                              className="flex items-center gap-2"
+                              style={{ flexShrink: 0 }}
+                            >
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setAddonQty(addon.id, Math.max(0, qty - 1))
+                                }
+                                style={{
+                                  width: 32,
+                                  height: 32,
+                                  borderRadius: 8,
+                                  border: `1px solid ${C.gray200}`,
+                                  background: qty > 0 ? C.brand : C.gray100,
+                                  color: qty > 0 ? "#fff" : C.gray400,
+                                  cursor: qty > 0 ? "pointer" : "default",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  transition: "all .15s",
+                                }}
+                              >
+                                <Minus size={14} />
+                              </button>
+                              <span
+                                style={{
+                                  fontSize: 18,
+                                  fontWeight: 700,
+                                  color: C.gray900,
+                                  minWidth: 28,
+                                  textAlign: "center",
+                                }}
+                              >
+                                {qty}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setAddonQty(
+                                    addon.id,
+                                    Math.min(addon.max_quantity, qty + 1)
+                                  )
+                                }
+                                disabled={qty >= addon.max_quantity}
+                                style={{
+                                  width: 32,
+                                  height: 32,
+                                  borderRadius: 8,
+                                  border: `1px solid ${C.gray200}`,
+                                  background:
+                                    qty < addon.max_quantity
+                                      ? C.brand
+                                      : C.gray100,
+                                  color:
+                                    qty < addon.max_quantity
+                                      ? "#fff"
+                                      : C.gray400,
+                                  cursor:
+                                    qty < addon.max_quantity
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  transition: "all .15s",
+                                }}
+                              >
+                                <Plus size={14} />
+                              </button>
+                            </div>
+                          </div>
+                          {qty > 0 && (
+                            <div
+                              style={{
+                                marginTop: 8,
+                                paddingTop: 8,
+                                borderTop: `1px solid ${C.gray100}`,
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: C.brand,
+                                textAlign: "right",
+                              }}
+                            >
+                              +${lineTotal.toFixed(2)}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    background: C.gray50,
+                    borderRadius: 12,
+                    padding: "24px 20px",
+                    textAlign: "center",
+                    color: C.gray400,
+                    fontSize: 14,
+                    marginBottom: 32,
+                  }}
+                >
+                  No add-ons available for this tour.
+                </div>
+              )}
+
+              {/* Promo Code */}
+              <div>
+                <h3
+                  style={{
+                    fontWeight: 600,
+                    fontSize: 16,
+                    color: C.gray900,
+                    marginBottom: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <Tag size={18} style={{ color: C.brand }} />
+                  Promo Code
+                </h3>
+                <div
+                  style={{
+                    background: C.white,
+                    borderRadius: 12,
+                    border: `1px solid ${C.gray200}`,
+                    padding: "16px 20px",
+                  }}
+                >
+                  {promoValidation?.valid ? (
+                    <div>
+                      <div
+                        className="flex items-center justify-between"
+                        style={{ marginBottom: 8 }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div
+                            style={{
+                              width: 28,
+                              height: 28,
+                              borderRadius: "50%",
+                              background: C.successLight,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Check size={16} style={{ color: C.success }} />
+                          </div>
+                          <div>
+                            <span
+                              style={{
+                                fontWeight: 600,
+                                color: C.gray900,
+                                fontSize: 14,
+                              }}
+                            >
+                              {promoCode.toUpperCase()}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: 13,
+                                color: C.success,
+                                marginLeft: 8,
+                              }}
+                            >
+                              {promoValidation.discount_description}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={removePromo}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            padding: 4,
+                            color: C.gray400,
+                          }}
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: C.success,
+                        }}
+                      >
+                        Saving ${discountAmount.toFixed(2)}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div
+                        className="flex gap-2"
+                        style={{
+                          animation: promoShake
+                            ? "shake 0.5s ease-in-out"
+                            : "none",
+                        }}
+                      >
+                        <input
+                          type="text"
+                          value={promoCode}
+                          onChange={(e) => {
+                            setPromoCode(e.target.value);
+                            if (promoValidation)
+                              setPromoValidation(null);
+                          }}
+                          placeholder="Enter promo code"
+                          style={{
+                            flex: 1,
+                            padding: "10px 14px",
+                            borderRadius: 8,
+                            border: `1px solid ${
+                              promoValidation && !promoValidation.valid
+                                ? C.danger
+                                : C.gray200
+                            }`,
+                            fontSize: 15,
+                            color: C.gray900,
+                            outline: "none",
+                            background: C.white,
+                            textTransform: "uppercase",
+                          }}
+                          onFocus={(e) =>
+                            ((e.target as HTMLInputElement).style.borderColor =
+                              C.brand)
+                          }
+                          onBlur={(e) =>
+                            ((e.target as HTMLInputElement).style.borderColor =
+                              C.gray200)
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              validatePromo();
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={validatePromo}
+                          disabled={!promoCode.trim() || validatingPromo}
+                          style={{
+                            background: !promoCode.trim()
+                              ? C.gray300
+                              : C.brand,
+                            color: "#fff",
+                            padding: "10px 20px",
+                            borderRadius: 8,
+                            fontWeight: 600,
+                            fontSize: 14,
+                            border: "none",
+                            cursor: !promoCode.trim()
+                              ? "not-allowed"
+                              : "pointer",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {validatingPromo ? (
+                            <Loader2
+                              size={16}
+                              className="animate-spin"
+                            />
+                          ) : (
+                            "Apply"
+                          )}
+                        </button>
+                      </div>
+                      {promoValidation && !promoValidation.valid && (
+                        <p
+                          style={{
+                            fontSize: 13,
+                            color: C.danger,
+                            marginTop: 8,
+                            margin: "8px 0 0",
+                          }}
+                        >
+                          {promoValidation.error}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <PrimaryBtn
+                  type="submit"
+                  disabled={submitting}
+                  style={{ width: "100%", marginTop: 24 }}
+                >
+                  {submitting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 size={18} className="animate-spin" />
+                      Processing...
+                    </span>
+                  ) : (
+                    `Complete Booking — $${depositDue.toFixed(2)} deposit`
+                  )}
+                </PrimaryBtn>
+              </form>
+            </div>
+
+            {/* Price Summary Sidebar */}
+            <div className="lg:col-span-2">
+              <div
+                style={{
+                  background: C.white,
+                  borderRadius: 14,
+                  border: `1px solid ${C.gray200}`,
+                  padding: 24,
+                  position: "sticky",
+                  top: 24,
+                }}
+              >
+                <h3
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 16,
+                    color: C.gray900,
+                    marginBottom: 16,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <ShoppingCart size={18} style={{ color: C.brand }} />
+                  Price Summary
+                </h3>
+                <div className="space-y-2 text-sm">
+                  {/* Base price */}
+                  <div className="flex justify-between">
+                    <span style={{ color: C.gray500 }}>
+                      Base: ${selectedProduct.price.toFixed(2)} x {partySize}{" "}
+                      guest{partySize > 1 ? "s" : ""}
+                    </span>
+                    <span style={{ fontWeight: 600, color: C.gray900 }}>
+                      ${basePrice.toFixed(2)}
+                    </span>
+                  </div>
+
+                  {/* Selected add-ons */}
+                  {addons
+                    .filter((a) => (addonQuantities[a.id] || 0) > 0)
+                    .map((addon) => {
+                      const qty = addonQuantities[addon.id] || 0;
+                      const unitPrice = addon.per_person
+                        ? addon.price * partySize
+                        : addon.price;
+                      return (
+                        <div
+                          key={addon.id}
+                          className="flex justify-between"
+                        >
+                          <span style={{ color: C.gray500 }}>
+                            {addon.name} x{qty}
+                          </span>
+                          <span
+                            style={{ fontWeight: 600, color: C.gray900 }}
+                          >
+                            ${(unitPrice * qty).toFixed(2)}
+                          </span>
+                        </div>
+                      );
+                    })}
+
+                  {/* Subtotal */}
+                  {(addonsTotal > 0 || discountAmount > 0) && (
+                    <>
+                      <div
+                        style={{
+                          borderTop: `1px solid ${C.gray100}`,
+                          paddingTop: 8,
+                          marginTop: 4,
+                        }}
+                        className="flex justify-between"
+                      >
+                        <span style={{ color: C.gray500 }}>Subtotal</span>
+                        <span
+                          style={{ fontWeight: 600, color: C.gray900 }}
+                        >
+                          ${subtotalBeforeDiscount.toFixed(2)}
+                        </span>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Discount */}
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between">
+                      <span style={{ color: C.success }}>
+                        Discount ({promoValidation?.discount_description})
+                      </span>
+                      <span
+                        style={{ fontWeight: 600, color: C.success }}
+                      >
+                        -${discountAmount.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Total */}
+                  <div
+                    style={{
+                      borderTop: `1px solid ${C.gray200}`,
+                      paddingTop: 10,
+                      marginTop: 6,
+                    }}
+                    className="flex justify-between"
+                  >
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        color: C.gray900,
+                        fontSize: 15,
+                      }}
+                    >
+                      Total
+                    </span>
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        color: C.gray900,
+                        fontSize: 15,
+                      }}
+                    >
+                      ${totalPrice.toFixed(2)}
+                    </span>
+                  </div>
+
+                  {/* Deposit */}
+                  <div
+                    style={{
+                      background: "#fef9ee",
+                      marginLeft: -12,
+                      marginRight: -12,
+                      padding: "10px 12px",
+                      borderRadius: 8,
+                      marginTop: 8,
+                    }}
+                    className="flex justify-between"
+                  >
+                    <span style={{ color: C.gray700, fontWeight: 600 }}>
+                      Deposit due today
+                    </span>
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        color: C.accent,
+                        fontSize: 16,
+                      }}
+                    >
+                      ${depositDue.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Mini booking info */}
+                <div
+                  style={{
+                    borderTop: `1px solid ${C.gray100}`,
+                    marginTop: 16,
+                    paddingTop: 12,
+                  }}
+                >
+                  <div
+                    className="space-y-2"
+                    style={{ fontSize: 13, color: C.gray500 }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <MapPin size={14} style={{ color: C.brand }} />
+                      {selectedProduct.name}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock size={14} style={{ color: C.brand }} />
+                      {new Date(
+                        selectedDate + "T00:00:00"
+                      ).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })}{" "}
+                      at {formatTime(selectedSlot.start_time)}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users size={14} style={{ color: C.brand }} />
+                      {partySize} guest{partySize > 1 ? "s" : ""}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Shake animation */}
+          <style>{`
+            @keyframes shake {
+              0%, 100% { transform: translateX(0); }
+              10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+              20%, 40%, 60%, 80% { transform: translateX(4px); }
+            }
+          `}</style>
+        </div>
+      )}
+
+      {/* ---- STEP 6: Confirmation ---- */}
+      {step === 6 && booking && selectedProduct && selectedDate && selectedSlot && (
         <div className="flex flex-col items-center text-center py-8">
           <div
             style={{
               width: 64,
               height: 64,
               borderRadius: "50%",
-              background: "#dcfce7",
+              background: C.successLight,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -1391,6 +2202,56 @@ function BookingFlowInner() {
                   {booking.party_size}
                 </span>
               </div>
+
+              {/* Price breakdown */}
+              <div
+                style={{
+                  borderTop: `1px solid ${C.gray100}`,
+                  paddingTop: 12,
+                  marginTop: 4,
+                }}
+              >
+                <div className="flex justify-between mb-1">
+                  <span style={{ color: C.gray500 }}>
+                    Base (${selectedProduct.price.toFixed(2)} x {booking.party_size})
+                  </span>
+                  <span style={{ fontWeight: 600, color: C.gray900 }}>
+                    ${basePrice.toFixed(2)}
+                  </span>
+                </div>
+                {addons
+                  .filter((a) => (addonQuantities[a.id] || 0) > 0)
+                  .map((addon) => {
+                    const qty = addonQuantities[addon.id] || 0;
+                    const unitPrice = addon.per_person
+                      ? addon.price * partySize
+                      : addon.price;
+                    return (
+                      <div
+                        key={addon.id}
+                        className="flex justify-between mb-1"
+                      >
+                        <span style={{ color: C.gray500 }}>
+                          {addon.name} x{qty}
+                        </span>
+                        <span style={{ fontWeight: 600, color: C.gray900 }}>
+                          ${(unitPrice * qty).toFixed(2)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                {discountAmount > 0 && (
+                  <div className="flex justify-between mb-1">
+                    <span style={{ color: C.success }}>
+                      Discount ({promoValidation?.discount_description})
+                    </span>
+                    <span style={{ fontWeight: 600, color: C.success }}>
+                      -${discountAmount.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
               <div
                 style={{
                   borderTop: `1px solid ${C.gray100}`,
@@ -1413,24 +2274,47 @@ function BookingFlowInner() {
             </div>
           </div>
 
-          <PrimaryBtn
-            onClick={() => {
-              setStep(1);
-              setSelectedProduct(null);
-              setSelectedDate(null);
-              setSelectedSlot(null);
-              setBooking(null);
-              setCustName("");
-              setCustEmail("");
-              setCustPhone("");
-              setPartySize(1);
-              setNotes("");
-              setErrorMsg("");
-            }}
-            style={{ marginTop: 24 }}
-          >
-            Book Another Tour
-          </PrimaryBtn>
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 mt-6">
+            {booking.manage_token && (
+              <a
+                href={`/book/manage/${booking.manage_token}`}
+                style={{
+                  background: C.white,
+                  border: `1px solid ${C.gray200}`,
+                  color: C.gray700,
+                  padding: "10px 20px",
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  textDecoration: "none",
+                  display: "inline-block",
+                }}
+              >
+                Manage Your Booking
+              </a>
+            )}
+            <PrimaryBtn
+              onClick={() => {
+                setStep(1);
+                setSelectedProduct(null);
+                setSelectedDate(null);
+                setSelectedSlot(null);
+                setBooking(null);
+                setCustName("");
+                setCustEmail("");
+                setCustPhone("");
+                setPartySize(1);
+                setNotes("");
+                setErrorMsg("");
+                setAddonQuantities({});
+                setPromoCode("");
+                setPromoValidation(null);
+              }}
+            >
+              Book Another Tour
+            </PrimaryBtn>
+          </div>
         </div>
       )}
     </div>

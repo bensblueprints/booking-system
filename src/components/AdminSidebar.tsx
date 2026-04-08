@@ -13,12 +13,20 @@ import {
   Menu,
   X,
   Anchor,
+  Tag,
+  PackagePlus,
+  CalendarX,
+  Mail,
 } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/slots", label: "Slots & Calendar", icon: CalendarDays },
+  { href: "/admin/promo-codes", label: "Promo Codes", icon: Tag },
+  { href: "/admin/addons", label: "Add-ons", icon: PackagePlus },
+  { href: "/admin/blackout-dates", label: "Blackout Dates", icon: CalendarX },
+  { href: "/admin/email-templates", label: "Email Templates", icon: Mail },
   { href: "/admin/bookings", label: "Bookings", icon: BookOpen },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];

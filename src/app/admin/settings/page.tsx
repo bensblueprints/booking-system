@@ -11,6 +11,9 @@ import {
   Save,
   Eye,
   EyeOff,
+  Mail,
+  Bell,
+  Send,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -23,7 +26,12 @@ export default function SettingsPage() {
   const [savingAuthNet, setSavingAuthNet] = useState(false);
   const [savingProvider, setSavingProvider] = useState(false);
   const [savingCal, setSavingCal] = useState(false);
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [savingNotif, setSavingNotif] = useState(false);
   const [savingPw, setSavingPw] = useState(false);
+
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [testEmailAddr, setTestEmailAddr] = useState("");
 
   const [pwForm, setPwForm] = useState({
     current_password: "",
@@ -33,6 +41,8 @@ export default function SettingsPage() {
 
   const [showStripeSecret, setShowStripeSecret] = useState(false);
   const [showAuthNetKey, setShowAuthNetKey] = useState(false);
+  const [showSmtpPass, setShowSmtpPass] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -82,6 +92,29 @@ export default function SettingsPage() {
     }
   };
 
+  const handleTestEmailConnection = async () => {
+    if (!testEmailAddr) {
+      addToast("Enter an email address to send a test to", "error");
+      return;
+    }
+    setTestingEmail(true);
+    try {
+      const res = await fetchWithAuth("/api/email/test", {
+        method: "POST",
+        body: JSON.stringify({ to: testEmailAddr, type: "connection_test" }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed");
+      }
+      addToast("Test email sent successfully", "success");
+    } catch (err) {
+      addToast((err as Error).message, "error");
+    } finally {
+      setTestingEmail(false);
+    }
+  };
+
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (pwForm.new_password !== pwForm.confirm_password) {
@@ -114,6 +147,16 @@ export default function SettingsPage() {
       setSavingPw(false);
     }
   };
+
+  const emailProvider = settings.email_provider || "smtp";
+
+  const emailKeys = (() => {
+    const base = ["email_provider", "smtp_from_email", "smtp_from_name"];
+    if (emailProvider === "smtp") return [...base, "smtp_host", "smtp_port", "smtp_user", "smtp_pass"];
+    if (emailProvider === "resend") return [...base, "resend_api_key"];
+    if (emailProvider === "sendgrid") return [...base, "sendgrid_api_key"];
+    return base;
+  })();
 
   const inputCls =
     "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
@@ -331,6 +374,204 @@ export default function SettingsPage() {
                 className={`${inputCls} h-32 resize-none font-mono text-xs`}
                 placeholder="Paste service account JSON here..."
               />
+            </div>
+          </div>
+        </Section>
+
+        {/* Email Configuration */}
+        <Section
+          icon={<Mail className="w-5 h-5" />}
+          title="Email Configuration"
+          saving={savingEmail}
+          onSave={() => saveSection(emailKeys, setSavingEmail)}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className={labelCls}>Email Provider</label>
+              <select
+                value={emailProvider}
+                onChange={(e) => update("email_provider", e.target.value)}
+                className={inputCls}
+              >
+                <option value="smtp">SMTP</option>
+                <option value="resend">Resend</option>
+                <option value="sendgrid">SendGrid</option>
+              </select>
+            </div>
+
+            {emailProvider === "smtp" && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelCls}>SMTP Host</label>
+                    <input
+                      type="text"
+                      value={settings.smtp_host || ""}
+                      onChange={(e) => update("smtp_host", e.target.value)}
+                      className={inputCls}
+                      placeholder="smtp.gmail.com"
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>SMTP Port</label>
+                    <input
+                      type="text"
+                      value={settings.smtp_port || ""}
+                      onChange={(e) => update("smtp_port", e.target.value)}
+                      className={inputCls}
+                      placeholder="587"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className={labelCls}>SMTP Username</label>
+                  <input
+                    type="text"
+                    value={settings.smtp_user || ""}
+                    onChange={(e) => update("smtp_user", e.target.value)}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>SMTP Password</label>
+                  <div className="relative">
+                    <input
+                      type={showSmtpPass ? "text" : "password"}
+                      value={settings.smtp_pass || ""}
+                      onChange={(e) => update("smtp_pass", e.target.value)}
+                      className={`${inputCls} pr-10`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSmtpPass(!showSmtpPass)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                    >
+                      {showSmtpPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {emailProvider === "resend" && (
+              <div>
+                <label className={labelCls}>Resend API Key</label>
+                <div className="relative">
+                  <input
+                    type={showApiKey ? "text" : "password"}
+                    value={settings.resend_api_key || ""}
+                    onChange={(e) => update("resend_api_key", e.target.value)}
+                    className={`${inputCls} pr-10`}
+                    placeholder="re_..."
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  >
+                    {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {emailProvider === "sendgrid" && (
+              <div>
+                <label className={labelCls}>SendGrid API Key</label>
+                <div className="relative">
+                  <input
+                    type={showApiKey ? "text" : "password"}
+                    value={settings.sendgrid_api_key || ""}
+                    onChange={(e) => update("sendgrid_api_key", e.target.value)}
+                    className={`${inputCls} pr-10`}
+                    placeholder="SG..."
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  >
+                    {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label className={labelCls}>From Email</label>
+              <input
+                type="email"
+                value={settings.smtp_from_email || ""}
+                onChange={(e) => update("smtp_from_email", e.target.value)}
+                className={inputCls}
+                placeholder="noreply@yourdomain.com"
+              />
+            </div>
+            <div>
+              <label className={labelCls}>From Name</label>
+              <input
+                type="text"
+                value={settings.smtp_from_name || ""}
+                onChange={(e) => update("smtp_from_name", e.target.value)}
+                className={inputCls}
+                placeholder="Your Business"
+              />
+            </div>
+
+            <div className="pt-3 border-t border-white/10">
+              <div className="text-sm font-medium text-gray-300 mb-2">Test Email Connection</div>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={testEmailAddr}
+                  onChange={(e) => setTestEmailAddr(e.target.value)}
+                  className={`${inputCls} flex-1`}
+                  placeholder="test@example.com"
+                />
+                <button
+                  onClick={handleTestEmailConnection}
+                  disabled={testingEmail || !testEmailAddr}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors disabled:opacity-50 shrink-0"
+                >
+                  <Send className="w-4 h-4" />
+                  {testingEmail ? "Sending..." : "Test"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        {/* Notifications */}
+        <Section
+          icon={<Bell className="w-5 h-5" />}
+          title="Notifications"
+          saving={savingNotif}
+          onSave={() => saveSection(["reminder_enabled", "reminder_hours"], setSavingNotif)}
+        >
+          <div className="space-y-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={settings.reminder_enabled === "1" || settings.reminder_enabled === "true"}
+                onChange={(e) => update("reminder_enabled", e.target.checked ? "1" : "0")}
+                className="w-4 h-4 rounded border-white/20 accent-brand"
+              />
+              <div>
+                <span className="text-sm text-gray-300">Enable booking reminders</span>
+                <div className="text-xs text-gray-500">Send automated reminder emails before bookings</div>
+              </div>
+            </label>
+            <div>
+              <label className={labelCls}>Reminder Hours Before</label>
+              <input
+                type="number"
+                min="1"
+                value={settings.reminder_hours || "24"}
+                onChange={(e) => update("reminder_hours", e.target.value)}
+                className={inputCls}
+                placeholder="24"
+              />
+              <p className="text-xs text-gray-500 mt-1">How many hours before the booking to send the reminder</p>
             </div>
           </div>
         </Section>
