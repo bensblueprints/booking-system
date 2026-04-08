@@ -4,6 +4,7 @@ import { getAdminFromRequest } from "@/lib/auth";
 import { validatePromoCode, applyPromoCode } from "@/lib/promo";
 import { sendBookingEmail } from "@/lib/email";
 import { sendBookingSms } from "@/lib/sms";
+import { fireWebhookEvent } from "@/lib/webhooks";
 import crypto from "crypto";
 
 export async function GET(request: Request) {
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const {
       slot_id, customer_name, customer_email, customer_phone,
-      party_size, notes, promo_code, addons,
+      party_size, notes, promo_code, addons, affiliate_id, custom_fields,
     } = body;
 
     if (!slot_id || !customer_name || !customer_email) {
@@ -222,7 +223,6 @@ export async function POST(request: Request) {
     }[];
 
     if (qDiscounts.length > 0) {
-      // Find the best discount (highest value)
       let bestDiscount = 0;
       for (const qd of qDiscounts) {
         let discVal = 0;
@@ -246,11 +246,22 @@ export async function POST(request: Request) {
     const deposit_amount = total_amount * (product.deposit_percent / 100);
     const manage_token = crypto.randomUUID();
 
+    // Phase 3: Validate affiliate if provided
+    let validAffiliateId: number | null = null;
+    if (affiliate_id) {
+      const affiliate = db
+        .prepare("SELECT * FROM affiliates WHERE id = ? AND active = 1")
+        .get(affiliate_id) as { id: number } | undefined;
+      if (affiliate) {
+        validAffiliateId = affiliate.id;
+      }
+    }
+
     const insertBooking = db.transaction(() => {
       const result = db
         .prepare(
-          `INSERT INTO bookings (slot_id, product_id, customer_name, customer_email, customer_phone, party_size, total_amount, deposit_amount, notes, promo_code_id, discount_amount, addons_total, manage_token, status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed')`
+          `INSERT INTO bookings (slot_id, product_id, customer_name, customer_email, customer_phone, party_size, total_amount, deposit_amount, notes, promo_code_id, discount_amount, addons_total, manage_token, status, affiliate_id, source)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', ?, 'online')`
         )
         .run(
           slot_id,
@@ -265,7 +276,8 @@ export async function POST(request: Request) {
           promo_code_id,
           discount_amount,
           addons_total,
-          manage_token
+          manage_token,
+          validAffiliateId
         );
 
       const bookingId = result.lastInsertRowid as number;
@@ -278,12 +290,51 @@ export async function POST(request: Request) {
         insertAddon.run(bookingId, item.addon_id, item.quantity, item.unit_price, item.total_price);
       }
 
+      // Phase 3: Save custom fields
+      if (custom_fields && Array.isArray(custom_fields)) {
+        const insertCf = db.prepare(
+          "INSERT INTO booking_custom_fields (booking_id, custom_field_id, value) VALUES (?, ?, ?)"
+        );
+        for (const cf of custom_fields) {
+          if (cf.field_id && cf.value !== undefined) {
+            insertCf.run(bookingId, cf.field_id, String(cf.value));
+          }
+        }
+      }
+
       // Update slot seats
       db.prepare("UPDATE slots SET booked_seats = booked_seats + ? WHERE id = ?").run(size, slot_id);
 
       // Apply promo code usage
       if (promo_code_id) {
         applyPromoCode(promo_code_id);
+      }
+
+      // Phase 3: Create affiliate booking record
+      if (validAffiliateId) {
+        const aff = db.prepare("SELECT * FROM affiliates WHERE id = ?").get(validAffiliateId) as {
+          commission_type: string;
+          commission_value: number;
+        };
+
+        let commission = 0;
+        if (aff.commission_type === "percent") {
+          commission = Math.round(total_amount * (aff.commission_value / 100) * 100) / 100;
+        } else {
+          commission = aff.commission_value;
+        }
+
+        db.prepare(
+          "INSERT INTO affiliate_bookings (affiliate_id, booking_id, commission_amount) VALUES (?, ?, ?)"
+        ).run(validAffiliateId, bookingId, commission);
+
+        db.prepare(
+          `UPDATE affiliates SET
+             total_bookings = total_bookings + 1,
+             total_revenue = total_revenue + ?,
+             total_commission = total_commission + ?
+           WHERE id = ?`
+        ).run(total_amount, commission, validAffiliateId);
       }
 
       // Phase 2: Upsert customer record
@@ -329,6 +380,21 @@ export async function POST(request: Request) {
       }
     } catch {
       // Don't fail the booking if SMS fails
+    }
+
+    // Phase 3: Fire webhook
+    try {
+      await fireWebhookEvent("booking.created", {
+        booking_id: bookingId,
+        customer_name,
+        customer_email,
+        product_id: slot.product_id,
+        slot_id,
+        party_size: size,
+        total_amount,
+      });
+    } catch {
+      // Don't fail the booking if webhook fails
     }
 
     return NextResponse.json(booking, { status: 201 });

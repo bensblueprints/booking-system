@@ -394,4 +394,126 @@ export function runMigrations(db: Database.Database) {
   for (const [key, value] of Object.entries(phase2Settings)) {
     upsertSetting.run(key, value);
   }
+
+  // ══════════════════════════════════════════════════════════
+  // ── Phase 3: New tables ──────────────────────────────────
+  // ══════════════════════════════════════════════════════════
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS gift_cards (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code TEXT NOT NULL UNIQUE COLLATE NOCASE,
+      initial_amount REAL NOT NULL,
+      balance REAL NOT NULL,
+      purchaser_name TEXT DEFAULT '',
+      purchaser_email TEXT DEFAULT '',
+      recipient_name TEXT DEFAULT '',
+      recipient_email TEXT DEFAULT '',
+      message TEXT DEFAULT '',
+      status TEXT DEFAULT 'active',
+      expires_at TEXT DEFAULT NULL,
+      purchased_at TEXT DEFAULT (datetime('now')),
+      payment_id TEXT DEFAULT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS gift_card_transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      gift_card_id INTEGER NOT NULL REFERENCES gift_cards(id),
+      booking_id INTEGER DEFAULT NULL REFERENCES bookings(id),
+      amount REAL NOT NULL,
+      type TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS pricing_rules (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      product_id INTEGER NOT NULL REFERENCES products(id),
+      name TEXT NOT NULL,
+      rule_type TEXT NOT NULL,
+      condition_json TEXT NOT NULL,
+      adjustment_type TEXT NOT NULL,
+      adjustment_value REAL NOT NULL,
+      priority INTEGER DEFAULT 0,
+      active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS affiliates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      code TEXT NOT NULL UNIQUE COLLATE NOCASE,
+      commission_type TEXT NOT NULL DEFAULT 'percent',
+      commission_value REAL NOT NULL DEFAULT 10,
+      total_bookings INTEGER DEFAULT 0,
+      total_revenue REAL DEFAULT 0,
+      total_commission REAL DEFAULT 0,
+      active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS affiliate_bookings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      affiliate_id INTEGER NOT NULL REFERENCES affiliates(id),
+      booking_id INTEGER NOT NULL REFERENCES bookings(id),
+      commission_amount REAL NOT NULL,
+      paid INTEGER DEFAULT 0,
+      paid_at TEXT DEFAULT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS webhooks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      url TEXT NOT NULL,
+      events TEXT NOT NULL,
+      secret TEXT NOT NULL,
+      active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS webhook_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      webhook_id INTEGER NOT NULL REFERENCES webhooks(id),
+      event TEXT NOT NULL,
+      payload TEXT NOT NULL,
+      response_status INTEGER DEFAULT NULL,
+      response_body TEXT DEFAULT '',
+      attempts INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS custom_fields (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      product_id INTEGER DEFAULT NULL,
+      label TEXT NOT NULL,
+      field_type TEXT NOT NULL,
+      options_json TEXT DEFAULT NULL,
+      required INTEGER DEFAULT 0,
+      sort_order INTEGER DEFAULT 0,
+      active INTEGER DEFAULT 1
+    );
+
+    CREATE TABLE IF NOT EXISTS booking_custom_fields (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      booking_id INTEGER NOT NULL REFERENCES bookings(id),
+      custom_field_id INTEGER NOT NULL REFERENCES custom_fields(id),
+      value TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS cancellation_policies (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      product_id INTEGER NOT NULL REFERENCES products(id),
+      name TEXT NOT NULL,
+      rules_json TEXT NOT NULL,
+      active INTEGER DEFAULT 1
+    );
+  `);
+
+  // ── Phase 3: Alter existing tables ───────────────────────
+  addColumnIfNotExists(db, "bookings", "gift_card_id", "INTEGER DEFAULT NULL");
+  addColumnIfNotExists(db, "bookings", "gift_card_amount", "REAL DEFAULT 0");
+  addColumnIfNotExists(db, "bookings", "affiliate_id", "INTEGER DEFAULT NULL");
+  addColumnIfNotExists(db, "bookings", "source", "TEXT DEFAULT 'online'");
+  addColumnIfNotExists(db, "bookings", "dynamic_price_adj", "REAL DEFAULT 0");
+
+  addColumnIfNotExists(db, "products", "cancellation_policy_id", "INTEGER DEFAULT NULL");
 }

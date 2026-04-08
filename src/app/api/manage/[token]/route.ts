@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { sendBookingEmail, sendEmail } from "@/lib/email";
+import { fireWebhookEvent } from "@/lib/webhooks";
+import { calculateRefund } from "@/lib/cancellation";
 
 export async function GET(
   request: Request,
@@ -58,9 +60,11 @@ export async function POST(
 
     const booking = db
       .prepare(
-        `SELECT b.*, s.date, s.start_time, s.end_time, s.total_seats, s.booked_seats
+        `SELECT b.*, s.date, s.start_time, s.end_time, s.total_seats, s.booked_seats,
+                p.cancellation_policy_id
          FROM bookings b
          JOIN slots s ON b.slot_id = s.id
+         JOIN products p ON b.product_id = p.id
          WHERE b.manage_token = ?`
       )
       .get(token) as Record<string, unknown> | undefined;
@@ -76,9 +80,19 @@ export async function POST(
     if (action === "cancel") {
       const cancelReason = body.reason || "";
 
+      // Phase 3: Calculate refund using cancellation policy if available
+      let refundInfo: { refund_amount: number; refund_percent: number; tier_description: string } | null = null;
+      if (booking.cancellation_policy_id) {
+        refundInfo = calculateRefund(
+          booking.cancellation_policy_id as number,
+          booking.date as string,
+          booking.total_amount as number
+        );
+      }
+
       db.prepare(
-        `UPDATE bookings SET status = 'cancelled', cancelled_at = datetime('now'), cancel_reason = ? WHERE id = ?`
-      ).run(cancelReason, booking.id);
+        `UPDATE bookings SET status = 'cancelled', cancelled_at = datetime('now'), cancel_reason = ?${refundInfo ? ", refund_amount = ?" : ""} WHERE id = ?`
+      ).run(...(refundInfo ? [cancelReason, refundInfo.refund_amount, booking.id] : [cancelReason, booking.id]));
 
       // Restore slot seats
       db.prepare(
@@ -90,6 +104,17 @@ export async function POST(
         await sendBookingEmail(booking.id as number, "cancellation");
       } catch {
         // Don't fail the cancellation if email fails
+      }
+
+      // Phase 3: Fire webhook for cancellation
+      try {
+        await fireWebhookEvent("booking.cancelled", {
+          booking_id: booking.id,
+          cancel_reason: cancelReason,
+          refund: refundInfo || null,
+        });
+      } catch {
+        // Don't fail if webhook fails
       }
 
       // Phase 2: Check waitlist for this slot and auto-notify first waiting entry
@@ -134,7 +159,7 @@ export async function POST(
       }
 
       const updated = db.prepare("SELECT * FROM bookings WHERE id = ?").get(booking.id);
-      return NextResponse.json(updated);
+      return NextResponse.json({ ...(updated as Record<string, unknown>), refund: refundInfo || null });
     }
 
     if (action === "reschedule") {

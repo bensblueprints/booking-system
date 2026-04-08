@@ -24,25 +24,64 @@ import {
   Shield,
   Truck,
   ListPlus,
+  BarChart3,
+  Gift,
+  TrendingUp,
+  Share2,
+  Webhook,
+  FormInput,
+  Store,
 } from "lucide-react";
 
-const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/products", label: "Products", icon: Package },
-  { href: "/admin/slots", label: "Slots & Calendar", icon: CalendarDays },
-  { href: "/admin/promo-codes", label: "Promo Codes", icon: Tag },
-  { href: "/admin/addons", label: "Add-ons", icon: PackagePlus },
-  { href: "/admin/blackout-dates", label: "Blackout Dates", icon: CalendarX },
-  { href: "/admin/email-templates", label: "Email Templates", icon: Mail },
-  { href: "/admin/customers", label: "Customers", icon: Users },
-  { href: "/admin/check-in", label: "Check-in", icon: ClipboardCheck },
-  { href: "/admin/waivers", label: "Waivers", icon: FileSignature },
-  { href: "/admin/reviews", label: "Reviews", icon: Star },
-  { href: "/admin/staff", label: "Staff", icon: Shield },
-  { href: "/admin/resources", label: "Resources", icon: Truck },
-  { href: "/admin/waitlist", label: "Waitlist", icon: ListPlus },
-  { href: "/admin/bookings", label: "Bookings", icon: BookOpen },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+interface NavSection {
+  label: string;
+  items: NavItem[];
+}
+
+const navSections: NavSection[] = [
+  {
+    label: "Booking",
+    items: [
+      { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/admin/products", label: "Products", icon: Package },
+      { href: "/admin/slots", label: "Slots & Calendar", icon: CalendarDays },
+      { href: "/admin/promo-codes", label: "Promo Codes", icon: Tag },
+      { href: "/admin/addons", label: "Add-ons", icon: PackagePlus },
+      { href: "/admin/blackout-dates", label: "Blackout Dates", icon: CalendarX },
+      { href: "/admin/bookings", label: "Bookings", icon: BookOpen },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      { href: "/admin/email-templates", label: "Email Templates", icon: Mail },
+      { href: "/admin/customers", label: "Customers", icon: Users },
+      { href: "/admin/check-in", label: "Check-in", icon: ClipboardCheck },
+      { href: "/admin/waivers", label: "Waivers", icon: FileSignature },
+      { href: "/admin/reviews", label: "Reviews", icon: Star },
+      { href: "/admin/staff", label: "Staff", icon: Shield },
+      { href: "/admin/resources", label: "Resources", icon: Truck },
+      { href: "/admin/waitlist", label: "Waitlist", icon: ListPlus },
+    ],
+  },
+  {
+    label: "Growth",
+    items: [
+      { href: "/admin/reports", label: "Reports", icon: BarChart3 },
+      { href: "/admin/gift-cards", label: "Gift Cards", icon: Gift },
+      { href: "/admin/pricing", label: "Pricing Rules", icon: TrendingUp },
+      { href: "/admin/affiliates", label: "Affiliates", icon: Share2 },
+      { href: "/admin/webhooks", label: "Webhooks", icon: Webhook },
+      { href: "/admin/custom-fields", label: "Custom Fields", icon: FormInput },
+      { href: "/admin/walkin", label: "Walk-in", icon: Store },
+    ],
+  },
 ];
 
 interface AdminSidebarProps {
@@ -75,26 +114,49 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
         </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                active
-                  ? "bg-brand text-white"
-                  : "text-gray-400 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Icon className="w-5 h-5 shrink-0" />
-              {item.label}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+        {navSections.map((section) => (
+          <div key={section.label}>
+            <div className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+              {section.label}
+            </div>
+            <div className="space-y-1">
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                      active
+                        ? "bg-brand text-white"
+                        : "text-gray-400 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <Icon className="w-5 h-5 shrink-0" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+        <div className="pt-2 border-t border-white/10">
+          <Link
+            href="/admin/settings"
+            onClick={() => setMobileOpen(false)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              isActive("/admin/settings")
+                ? "bg-brand text-white"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <Settings className="w-5 h-5 shrink-0" />
+            Settings
+          </Link>
+        </div>
       </nav>
 
       <div className="px-3 py-4 border-t border-white/10">
