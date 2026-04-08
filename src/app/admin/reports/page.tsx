@@ -140,19 +140,19 @@ export default function ReportsPage() {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm"
+            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm"
           />
-          <span className="text-gray-400 text-sm">to</span>
+          <span className="text-slate-700 text-sm">to</span>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm"
+            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm"
           />
           <select
             value={productFilter}
             onChange={(e) => setProductFilter(e.target.value)}
-            className="bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm"
+            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm"
           >
             <option value="">All Products</option>
             {products.map((p) => (
@@ -169,10 +169,10 @@ export default function ReportsPage() {
           { label: "Total Bookings", value: totalBookings.toLocaleString(), icon: CalendarDays, color: "text-brand" },
           { label: "Average Order Value", value: formatCurrency(avgOrderValue), icon: TrendingUp, color: "text-accent" },
         ].map((stat) => (
-          <div key={stat.label} className="bg-surface-light border border-white/10 rounded-xl p-5">
+          <div key={stat.label} className="bg-white border border-slate-200 rounded-xl p-5">
             <div className="flex items-center gap-3 mb-2">
               <stat.icon className={`w-5 h-5 ${stat.color}`} />
-              <span className="text-sm text-gray-400">{stat.label}</span>
+              <span className="text-sm text-slate-700">{stat.label}</span>
             </div>
             <div className="text-2xl font-bold">{stat.value}</div>
           </div>
@@ -180,22 +180,22 @@ export default function ReportsPage() {
       </div>
 
       {/* Revenue Chart */}
-      <div className="bg-surface-light border border-white/10 rounded-xl p-5">
+      <div className="bg-white border border-slate-200 rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Revenue Over Time</h2>
           <button
             onClick={() =>
               downloadCSV("revenue.csv", ["Date", "Revenue"], revenue.map((r) => [r.date, r.revenue.toString()]))
             }
-            className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
+            className="flex items-center gap-2 text-sm text-slate-700 hover:text-brand transition-colors"
           >
             <Download className="w-4 h-4" /> Export CSV
           </button>
         </div>
         {loading ? (
-          <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
+          <div className="h-64 flex items-center justify-center text-slate-700">Loading...</div>
         ) : revenue.length === 0 ? (
-          <div className="h-64 flex items-center justify-center text-gray-400">No revenue data for this period</div>
+          <div className="h-64 flex items-center justify-center text-slate-700">No revenue data for this period</div>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={revenue}>
@@ -215,7 +215,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Bookings by Product */}
-      <div className="bg-surface-light border border-white/10 rounded-xl p-5">
+      <div className="bg-white border border-slate-200 rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Bookings by Product</h2>
           <button
@@ -226,15 +226,15 @@ export default function ReportsPage() {
                 bookingsByProduct.map((b) => [b.product_name, b.bookings.toString()])
               )
             }
-            className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
+            className="flex items-center gap-2 text-sm text-slate-700 hover:text-brand transition-colors"
           >
             <Download className="w-4 h-4" /> Export CSV
           </button>
         </div>
         {loading ? (
-          <div className="h-64 flex items-center justify-center text-gray-400">Loading...</div>
+          <div className="h-64 flex items-center justify-center text-slate-700">Loading...</div>
         ) : bookingsByProduct.length === 0 ? (
-          <div className="h-64 flex items-center justify-center text-gray-400">No booking data for this period</div>
+          <div className="h-64 flex items-center justify-center text-slate-700">No booking data for this period</div>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={bookingsByProduct}>
@@ -253,7 +253,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Occupancy Table */}
-      <div className="bg-surface-light border border-white/10 rounded-xl p-5">
+      <div className="bg-white border border-slate-200 rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Occupancy</h2>
           <button
@@ -264,20 +264,20 @@ export default function ReportsPage() {
                 occupancy.map((o) => [o.product_name, o.total_seats.toString(), o.booked_seats.toString(), o.occupancy_pct.toString()])
               )
             }
-            className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
+            className="flex items-center gap-2 text-sm text-slate-700 hover:text-brand transition-colors"
           >
             <Download className="w-4 h-4" /> Export CSV
           </button>
         </div>
         {loading ? (
-          <div className="py-8 text-center text-gray-400">Loading...</div>
+          <div className="py-8 text-center text-slate-700">Loading...</div>
         ) : occupancy.length === 0 ? (
-          <div className="py-8 text-center text-gray-400">No occupancy data</div>
+          <div className="py-8 text-center text-slate-700">No occupancy data</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-left text-gray-400">
+                <tr className="border-b border-slate-200 text-left text-slate-700">
                   <th className="pb-3 font-medium">Product</th>
                   <th className="pb-3 font-medium">Total Seats</th>
                   <th className="pb-3 font-medium">Booked</th>
@@ -286,13 +286,13 @@ export default function ReportsPage() {
               </thead>
               <tbody>
                 {occupancy.map((o, i) => (
-                  <tr key={i} className="border-b border-white/5">
-                    <td className="py-3 font-medium text-white">{o.product_name}</td>
-                    <td className="py-3 text-gray-400">{o.total_seats}</td>
-                    <td className="py-3 text-gray-400">{o.booked_seats}</td>
+                  <tr key={i} className="border-b border-slate-100">
+                    <td className="py-3 font-medium text-slate-900">{o.product_name}</td>
+                    <td className="py-3 text-slate-700">{o.total_seats}</td>
+                    <td className="py-3 text-slate-700">{o.booked_seats}</td>
                     <td className="py-3">
                       <div className="flex items-center gap-3">
-                        <div className="flex-1 h-2 bg-white/10 rounded-full max-w-32">
+                        <div className="flex-1 h-2 bg-slate-200 rounded-full max-w-32">
                           <div
                             className="h-2 rounded-full transition-all"
                             style={{

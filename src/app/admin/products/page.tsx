@@ -283,10 +283,10 @@ export default function ProductsPage() {
 </script>`;
 
   const inputCls =
-    "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
-  const labelCls = "block text-sm font-medium text-gray-300 mb-1";
+    "w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
+  const labelCls = "block text-sm font-medium text-slate-900 mb-1";
   const codeCls =
-    "w-full bg-surface border border-white/10 rounded-lg p-3 text-xs text-gray-300 font-mono whitespace-pre-wrap break-all select-all max-h-32 overflow-auto";
+    "w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-900 font-mono whitespace-pre-wrap break-all select-all max-h-32 overflow-auto";
 
   if (loading) {
     return (
@@ -299,7 +299,7 @@ export default function ProductsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Products</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Products</h1>
         <button
           onClick={openCreate}
           className="flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-dark rounded-lg text-sm font-medium transition-colors"
@@ -311,12 +311,12 @@ export default function ProductsPage() {
 
       {/* Quick links bar */}
       {products.length > 0 && (
-        <div className="bg-surface-light rounded-xl border border-white/10 p-4 mb-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-4 mb-6">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-2 text-sm text-gray-400">
+            <div className="flex items-center gap-2 text-sm text-slate-700">
               <LinkIcon className="w-4 h-4" />
               <span>All Products Booking Page:</span>
-              <code className="bg-surface px-2 py-0.5 rounded text-xs text-brand-light">{getAllBookingLink()}</code>
+              <code className="bg-slate-50 px-2 py-0.5 rounded text-xs text-brand-light">{getAllBookingLink()}</code>
             </div>
             <CopyButton text={getAllBookingLink()} label="Copy Link" />
           </div>
@@ -324,15 +324,15 @@ export default function ProductsPage() {
       )}
 
       {products.length === 0 ? (
-        <div className="bg-surface-light rounded-xl border border-white/10 p-12 text-center">
-          <p className="text-gray-400">No products yet. Create your first product to get started.</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+          <p className="text-slate-700">No products yet. Create your first product to get started.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {products.map((p) => (
             <div
               key={p.id}
-              className="bg-surface-light rounded-xl border border-white/10 p-5 flex flex-col"
+              className="bg-white rounded-xl border border-slate-200 p-5 flex flex-col"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -341,8 +341,8 @@ export default function ProductsPage() {
                     style={{ backgroundColor: p.color || "#1B6B8A" }}
                   />
                   <div>
-                    <div className="font-semibold text-white">{p.name}</div>
-                    <div className="text-xs text-gray-400">
+                    <div className="font-semibold text-slate-900">{p.name}</div>
+                    <div className="text-xs text-slate-700">
                       ${p.price}/person &middot; {p.deposit_percent}% deposit
                     </div>
                   </div>
@@ -350,8 +350,8 @@ export default function ProductsPage() {
                 <span
                   className={`text-xs px-2 py-0.5 rounded-full ${
                     p.active
-                      ? "bg-success/20 text-success"
-                      : "bg-gray-500/20 text-gray-400"
+                      ? "bg-green-100 text-success"
+                      : "bg-slate-200 text-slate-700"
                   }`}
                 >
                   {p.active ? "Active" : "Inactive"}
@@ -359,30 +359,30 @@ export default function ProductsPage() {
               </div>
 
               {p.description && (
-                <p className="text-sm text-gray-400 mb-3 line-clamp-2">{p.description}</p>
+                <p className="text-sm text-slate-700 mb-3 line-clamp-2">{p.description}</p>
               )}
 
               <div className="grid grid-cols-3 gap-2 text-center text-xs mb-4 mt-auto">
-                <div className="bg-surface rounded-lg py-2">
-                  <div className="text-white font-medium">{p.seats_per_slot}</div>
-                  <div className="text-gray-400">Seats</div>
+                <div className="bg-slate-50 rounded-lg py-2">
+                  <div className="text-slate-900 font-medium">{p.seats_per_slot}</div>
+                  <div className="text-slate-700">Seats</div>
                 </div>
-                <div className="bg-surface rounded-lg py-2">
-                  <div className="text-white font-medium">{p.duration_minutes}m</div>
-                  <div className="text-gray-400">Duration</div>
+                <div className="bg-slate-50 rounded-lg py-2">
+                  <div className="text-slate-900 font-medium">{p.duration_minutes}m</div>
+                  <div className="text-slate-700">Duration</div>
                 </div>
-                <div className="bg-surface rounded-lg py-2">
-                  <div className="text-white font-medium">
+                <div className="bg-slate-50 rounded-lg py-2">
+                  <div className="text-slate-900 font-medium">
                     {p.season_start ? `${p.season_start}` : "All"}
                   </div>
-                  <div className="text-gray-400">Season</div>
+                  <div className="text-slate-700">Season</div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-3 border-t border-white/10 flex-wrap">
+              <div className="flex items-center gap-2 pt-3 border-t border-slate-200 flex-wrap">
                 <button
                   onClick={() => openEdit(p)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors"
                 >
                   <Pencil className="w-3.5 h-3.5" /> Edit
                 </button>
@@ -394,7 +394,7 @@ export default function ProductsPage() {
                 </button>
                 <button
                   onClick={() => handleToggle(p)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors"
                 >
                   {p.active ? (
                     <><ToggleRight className="w-3.5 h-3.5" /> Deactivate</>
@@ -404,7 +404,7 @@ export default function ProductsPage() {
                 </button>
                 <button
                   onClick={() => handleDelete(p.id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-danger bg-white/5 hover:bg-danger/10 rounded-lg transition-colors ml-auto"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-danger bg-slate-100 hover:bg-red-50 rounded-lg transition-colors ml-auto"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete
                 </button>
@@ -426,25 +426,25 @@ export default function ProductsPage() {
             {/* Direct Link */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <label className="text-sm font-medium text-slate-900 flex items-center gap-2">
                   <LinkIcon className="w-4 h-4" /> Direct Link
                 </label>
                 <CopyButton text={getDirectLink(embedProduct)} />
               </div>
               <div className={codeCls}>{getDirectLink(embedProduct)}</div>
-              <p className="text-xs text-gray-500 mt-1">Link directly to the booking page for this product.</p>
+              <p className="text-xs text-slate-600 mt-1">Link directly to the booking page for this product.</p>
             </div>
 
             {/* HTML Button */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-300">HTML Button</label>
+                <label className="text-sm font-medium text-slate-900">HTML Button</label>
                 <CopyButton text={getButtonSnippet(embedProduct)} />
               </div>
               <div className={codeCls}>{getButtonSnippet(embedProduct)}</div>
-              <p className="text-xs text-gray-500 mt-1">Simple HTML link styled as a button. Paste anywhere in your HTML.</p>
-              <div className="mt-2 p-3 bg-surface rounded-lg border border-white/10">
-                <span className="text-xs text-gray-400 block mb-2">Preview:</span>
+              <p className="text-xs text-slate-600 mt-1">Simple HTML link styled as a button. Paste anywhere in your HTML.</p>
+              <div className="mt-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span className="text-xs text-slate-700 block mb-2">Preview:</span>
                 <div dangerouslySetInnerHTML={{ __html: getButtonSnippet(embedProduct) }} />
               </div>
             </div>
@@ -452,31 +452,31 @@ export default function ProductsPage() {
             {/* JavaScript Button */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-300">JavaScript Button (auto-inject)</label>
+                <label className="text-sm font-medium text-slate-900">JavaScript Button (auto-inject)</label>
                 <CopyButton text={getJsButtonSnippet(embedProduct)} />
               </div>
               <div className={codeCls}>{getJsButtonSnippet(embedProduct)}</div>
-              <p className="text-xs text-gray-500 mt-1">Paste this script tag anywhere — it auto-creates a styled booking button.</p>
+              <p className="text-xs text-slate-600 mt-1">Paste this script tag anywhere — it auto-creates a styled booking button.</p>
             </div>
 
             {/* Popup Button */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-300">Popup Button (opens in overlay)</label>
+                <label className="text-sm font-medium text-slate-900">Popup Button (opens in overlay)</label>
                 <CopyButton text={getPopupSnippet(embedProduct)} />
               </div>
               <div className={codeCls}>{getPopupSnippet(embedProduct)}</div>
-              <p className="text-xs text-gray-500 mt-1">Opens the booking form in a popup overlay — visitors stay on your site.</p>
+              <p className="text-xs text-slate-600 mt-1">Opens the booking form in a popup overlay — visitors stay on your site.</p>
             </div>
 
             {/* Iframe Embed */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-300">Iframe Embed (inline)</label>
+                <label className="text-sm font-medium text-slate-900">Iframe Embed (inline)</label>
                 <CopyButton text={getIframeSnippet(embedProduct)} />
               </div>
               <div className={codeCls}>{getIframeSnippet(embedProduct)}</div>
-              <p className="text-xs text-gray-500 mt-1">Embed the full booking flow directly into any page.</p>
+              <p className="text-xs text-slate-600 mt-1">Embed the full booking flow directly into any page.</p>
             </div>
           </div>
         )}
@@ -561,7 +561,7 @@ export default function ProductsPage() {
                 onChange={(e) => setForm({ ...form, cutoff_hours: e.target.value })}
                 className={inputCls}
               />
-              <p className="text-xs text-gray-500 mt-1">Prevent bookings within X hours of start time. 0 = no cut-off</p>
+              <p className="text-xs text-slate-600 mt-1">Prevent bookings within X hours of start time. 0 = no cut-off</p>
             </div>
             <div>
               <label className={labelCls}>Minimum Participants</label>
@@ -572,7 +572,7 @@ export default function ProductsPage() {
                 onChange={(e) => setForm({ ...form, min_participants: e.target.value })}
                 className={inputCls}
               />
-              <p className="text-xs text-gray-500 mt-1">Minimum party size required per booking</p>
+              <p className="text-xs text-slate-600 mt-1">Minimum party size required per booking</p>
             </div>
             <div>
               <label className={labelCls}>Season Start (MM-DD)</label>
@@ -601,7 +601,7 @@ export default function ProductsPage() {
                   type="color"
                   value={form.color}
                   onChange={(e) => setForm({ ...form, color: e.target.value })}
-                  className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
+                  className="w-10 h-10 rounded-lg border border-slate-200 bg-transparent cursor-pointer"
                 />
                 <input
                   type="text"
@@ -617,17 +617,17 @@ export default function ProductsPage() {
                   type="checkbox"
                   checked={form.active}
                   onChange={(e) => setForm({ ...form, active: e.target.checked })}
-                  className="w-4 h-4 rounded border-white/20 accent-brand"
+                  className="w-4 h-4 rounded border-slate-300 accent-brand"
                 />
-                <span className="text-sm text-gray-300">Active</span>
+                <span className="text-sm text-slate-900">Active</span>
               </label>
             </div>
           </div>
 
           {/* Quantity Discounts */}
-          <div className="pt-4 border-t border-white/10">
+          <div className="pt-4 border-t border-slate-200">
             <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-semibold text-white">Quantity Discounts</label>
+              <label className="text-sm font-semibold text-slate-900">Quantity Discounts</label>
               <button
                 type="button"
                 onClick={addDiscountTier}
@@ -637,13 +637,13 @@ export default function ProductsPage() {
               </button>
             </div>
             {discountTiers.length === 0 ? (
-              <p className="text-xs text-gray-500">No quantity discounts. Add tiers to offer group discounts.</p>
+              <p className="text-xs text-slate-600">No quantity discounts. Add tiers to offer group discounts.</p>
             ) : (
               <div className="space-y-2">
                 {discountTiers.map((tier, idx) => (
-                  <div key={idx} className="flex items-center gap-2 bg-surface rounded-lg p-2 border border-white/5">
+                  <div key={idx} className="flex items-center gap-2 bg-slate-50 rounded-lg p-2 border border-slate-100">
                     <div className="flex-1">
-                      <label className="text-xs text-gray-400">Min Qty</label>
+                      <label className="text-xs text-slate-700">Min Qty</label>
                       <input
                         type="number"
                         min="2"
@@ -653,7 +653,7 @@ export default function ProductsPage() {
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="text-xs text-gray-400">Type</label>
+                      <label className="text-xs text-slate-700">Type</label>
                       <select
                         value={tier.discount_type}
                         onChange={(e) => updateDiscountTier(idx, "discount_type", e.target.value)}
@@ -664,7 +664,7 @@ export default function ProductsPage() {
                       </select>
                     </div>
                     <div className="flex-1">
-                      <label className="text-xs text-gray-400">Value</label>
+                      <label className="text-xs text-slate-700">Value</label>
                       <input
                         type="number"
                         step="0.01"
@@ -677,7 +677,7 @@ export default function ProductsPage() {
                     <button
                       type="button"
                       onClick={() => removeDiscountTier(idx)}
-                      className="mt-4 p-1.5 text-gray-400 hover:text-danger hover:bg-white/5 rounded-lg transition-colors"
+                      className="mt-4 p-1.5 text-slate-700 hover:text-danger hover:bg-slate-100 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -687,11 +687,11 @@ export default function ProductsPage() {
             )}
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 text-sm bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors"
             >
               Cancel
             </button>

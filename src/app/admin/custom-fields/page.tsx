@@ -154,12 +154,12 @@ export default function CustomFieldsPage() {
   const renderPreview = (f: typeof form) => {
     switch (f.field_type) {
       case "text":
-        return <input type="text" placeholder={f.label} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" readOnly />;
+        return <input type="text" placeholder={f.label} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" readOnly />;
       case "textarea":
-        return <textarea placeholder={f.label} rows={3} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" readOnly />;
+        return <textarea placeholder={f.label} rows={3} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" readOnly />;
       case "select":
         return (
-          <select className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" disabled>
+          <select className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" disabled>
             <option>Select {f.label}...</option>
             {f.options.split(/[,\n]/).map((o) => o.trim()).filter(Boolean).map((opt, i) => (
               <option key={i}>{opt}</option>
@@ -169,14 +169,14 @@ export default function CustomFieldsPage() {
       case "checkbox":
         return (
           <label className="flex items-center gap-2">
-            <input type="checkbox" className="w-4 h-4 rounded border-white/10" disabled />
+            <input type="checkbox" className="w-4 h-4 rounded border-slate-200" disabled />
             <span className="text-sm">{f.label}</span>
           </label>
         );
       case "number":
-        return <input type="number" placeholder={f.label} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" readOnly />;
+        return <input type="number" placeholder={f.label} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" readOnly />;
       case "date":
-        return <input type="date" className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" readOnly />;
+        return <input type="date" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" readOnly />;
       default:
         return null;
     }
@@ -190,24 +190,24 @@ export default function CustomFieldsPage() {
           <select
             value={productFilter}
             onChange={(e) => setProductFilter(e.target.value)}
-            className="bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm"
+            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm"
           >
             <option value="">All Products</option>
             {products.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
-          <button onClick={openCreate} className="flex items-center gap-2 bg-brand hover:bg-brand/80 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          <button onClick={openCreate} className="flex items-center gap-2 bg-brand hover:bg-brand/80 text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" /> Add Field
           </button>
         </div>
       </div>
 
-      <div className="bg-surface-light border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-left text-gray-400">
+              <tr className="border-b border-slate-200 text-left text-slate-700">
                 <th className="px-4 py-3 font-medium">Label</th>
                 <th className="px-4 py-3 font-medium">Type</th>
                 <th className="px-4 py-3 font-medium">Required</th>
@@ -218,13 +218,13 @@ export default function CustomFieldsPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Loading...</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-700">Loading...</td></tr>
               ) : fields.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No custom fields defined</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-700">No custom fields defined</td></tr>
               ) : (
                 fields.map((field) => (
-                  <tr key={field.id} className="border-b border-white/5 hover:bg-white/5">
-                    <td className="px-4 py-3 font-medium text-white">{field.label}</td>
+                  <tr key={field.id} className="border-b border-slate-100 hover:bg-slate-100">
+                    <td className="px-4 py-3 font-medium text-slate-900">{field.label}</td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded text-xs font-medium bg-brand/20 text-brand">
                         {fieldTypes.find((t) => t.value === field.field_type)?.label || field.field_type}
@@ -234,17 +234,17 @@ export default function CustomFieldsPage() {
                       {field.required ? (
                         <span className="text-green-400 text-xs font-medium">Yes</span>
                       ) : (
-                        <span className="text-gray-500 text-xs">No</span>
+                        <span className="text-slate-600 text-xs">No</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-gray-400">{field.product_name || "All Products"}</td>
-                    <td className="px-4 py-3 text-gray-400">{field.sort_order}</td>
+                    <td className="px-4 py-3 text-slate-700">{field.product_name || "All Products"}</td>
+                    <td className="px-4 py-3 text-slate-700">{field.sort_order}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => openEdit(field)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title="Edit">
-                          <Pencil className="w-4 h-4 text-gray-400" />
+                        <button onClick={() => openEdit(field)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title="Edit">
+                          <Pencil className="w-4 h-4 text-slate-700" />
                         </button>
-                        <button onClick={() => handleDelete(field.id)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title="Delete">
+                        <button onClick={() => handleDelete(field.id)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title="Delete">
                           <Trash2 className="w-4 h-4 text-red-400" />
                         </button>
                       </div>
@@ -262,43 +262,43 @@ export default function CustomFieldsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Label *</label>
-              <input type="text" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" placeholder="Dietary Requirements" />
+              <label className="block text-sm text-slate-700 mb-1">Label *</label>
+              <input type="text" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" placeholder="Dietary Requirements" />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Field Type</label>
-              <select value={form.field_type} onChange={(e) => setForm({ ...form, field_type: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm">
+              <label className="block text-sm text-slate-700 mb-1">Field Type</label>
+              <select value={form.field_type} onChange={(e) => setForm({ ...form, field_type: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm">
                 {fieldTypes.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
             </div>
             {form.field_type === "select" && (
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Options (comma-separated)</label>
-                <textarea value={form.options} onChange={(e) => setForm({ ...form, options: e.target.value })} rows={3} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" placeholder="Option 1, Option 2, Option 3" />
+                <label className="block text-sm text-slate-700 mb-1">Options (comma-separated)</label>
+                <textarea value={form.options} onChange={(e) => setForm({ ...form, options: e.target.value })} rows={3} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" placeholder="Option 1, Option 2, Option 3" />
               </div>
             )}
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Product (optional)</label>
-              <select value={form.product_id} onChange={(e) => setForm({ ...form, product_id: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm">
+              <label className="block text-sm text-slate-700 mb-1">Product (optional)</label>
+              <select value={form.product_id} onChange={(e) => setForm({ ...form, product_id: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm">
                 <option value="">All Products</option>
                 {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Sort Order</label>
-                <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+                <label className="block text-sm text-slate-700 mb-1">Sort Order</label>
+                <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
               </div>
               <div className="flex items-end pb-1">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={form.required} onChange={(e) => setForm({ ...form, required: e.target.checked })} className="w-4 h-4 rounded border-white/10" />
+                  <input type="checkbox" checked={form.required} onChange={(e) => setForm({ ...form, required: e.target.checked })} className="w-4 h-4 rounded border-slate-200" />
                   <span className="text-sm">Required</span>
                 </label>
               </div>
             </div>
             <div className="flex justify-end gap-3 pt-2">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">Cancel</button>
-              <button onClick={handleSave} className="px-4 py-2 bg-brand hover:bg-brand/80 text-white rounded-lg text-sm font-medium transition-colors">
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-700 hover:text-brand transition-colors">Cancel</button>
+              <button onClick={handleSave} className="px-4 py-2 bg-brand hover:bg-brand/80 text-slate-900 rounded-lg text-sm font-medium transition-colors">
                 {editingId ? "Update Field" : "Create Field"}
               </button>
             </div>
@@ -306,20 +306,20 @@ export default function CustomFieldsPage() {
 
           {/* Preview */}
           <div>
-            <h3 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
               <Eye className="w-4 h-4" /> Preview
             </h3>
-            <div className="bg-surface border border-white/10 rounded-xl p-4">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
               {form.label && (
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1.5">
+                  <label className="block text-sm text-slate-700 mb-1.5">
                     {form.label} {form.required && <span className="text-red-400">*</span>}
                   </label>
                   {renderPreview(form)}
                 </div>
               )}
               {!form.label && (
-                <div className="text-center text-gray-500 py-4 text-sm">
+                <div className="text-center text-slate-600 py-4 text-sm">
                   Enter a label to see preview
                 </div>
               )}

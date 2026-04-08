@@ -36,7 +36,7 @@ interface Transaction {
 
 const statusClasses: Record<string, string> = {
   active: "bg-green-500/20 text-green-400",
-  depleted: "bg-gray-500/20 text-gray-400",
+  depleted: "bg-slate-200 text-slate-700",
   expired: "bg-red-500/20 text-red-400",
   cancelled: "bg-red-500/20 text-red-400",
 };
@@ -160,28 +160,28 @@ export default function GiftCardsPage() {
         <h1 className="text-2xl font-bold">Gift Cards</h1>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 bg-brand hover:bg-brand/80 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="flex items-center gap-2 bg-brand hover:bg-brand/80 text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
         >
           <Plus className="w-4 h-4" /> Create Gift Card
         </button>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" />
         <input
           type="text"
           placeholder="Search by code, purchaser, or recipient..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-surface-light border border-white/10 rounded-lg text-sm"
+          className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm"
         />
       </div>
 
-      <div className="bg-surface-light border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-left text-gray-400">
+              <tr className="border-b border-slate-200 text-left text-slate-700">
                 <th className="px-4 py-3 font-medium">Code</th>
                 <th className="px-4 py-3 font-medium">Initial</th>
                 <th className="px-4 py-3 font-medium">Balance</th>
@@ -194,30 +194,30 @@ export default function GiftCardsPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Loading...</td></tr>
+                <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-700">Loading...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">No gift cards found</td></tr>
+                <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-700">No gift cards found</td></tr>
               ) : (
                 filtered.map((card) => (
-                  <tr key={card.code} className="border-b border-white/5 hover:bg-white/5">
-                    <td className="px-4 py-3 font-mono text-white">{card.code}</td>
+                  <tr key={card.code} className="border-b border-slate-100 hover:bg-slate-100">
+                    <td className="px-4 py-3 font-mono text-slate-900">{card.code}</td>
                     <td className="px-4 py-3">{formatCurrency(card.initial_amount)}</td>
-                    <td className="px-4 py-3 font-medium text-white">{formatCurrency(card.balance)}</td>
-                    <td className="px-4 py-3 text-gray-400">{card.purchaser_name}</td>
-                    <td className="px-4 py-3 text-gray-400">{card.recipient_name}</td>
+                    <td className="px-4 py-3 font-medium text-slate-900">{formatCurrency(card.balance)}</td>
+                    <td className="px-4 py-3 text-slate-700">{card.purchaser_name}</td>
+                    <td className="px-4 py-3 text-slate-700">{card.recipient_name}</td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusClasses[card.status] || "bg-gray-500/20 text-gray-400"}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusClasses[card.status] || "bg-slate-200 text-slate-700"}`}>
                         {card.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-400">{new Date(card.created_at).toLocaleDateString()}</td>
+                    <td className="px-4 py-3 text-slate-700">{new Date(card.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => viewTransactions(card)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title="View Transactions">
-                          <Eye className="w-4 h-4 text-gray-400" />
+                        <button onClick={() => viewTransactions(card)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title="View Transactions">
+                          <Eye className="w-4 h-4 text-slate-700" />
                         </button>
                         {card.status === "active" && (
-                          <button onClick={() => handleDeactivate(card.code)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title="Deactivate">
+                          <button onClick={() => handleDeactivate(card.code)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title="Deactivate">
                             <XCircle className="w-4 h-4 text-red-400" />
                           </button>
                         )}
@@ -235,40 +235,40 @@ export default function GiftCardsPage() {
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Create Gift Card">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Amount *</label>
-            <input type="number" min="1" step="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" placeholder="50.00" />
+            <label className="block text-sm text-slate-700 mb-1">Amount *</label>
+            <input type="number" min="1" step="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" placeholder="50.00" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Purchaser Name *</label>
-              <input type="text" value={form.purchaser_name} onChange={(e) => setForm({ ...form, purchaser_name: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+              <label className="block text-sm text-slate-700 mb-1">Purchaser Name *</label>
+              <input type="text" value={form.purchaser_name} onChange={(e) => setForm({ ...form, purchaser_name: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Purchaser Email *</label>
-              <input type="email" value={form.purchaser_email} onChange={(e) => setForm({ ...form, purchaser_email: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+              <label className="block text-sm text-slate-700 mb-1">Purchaser Email *</label>
+              <input type="email" value={form.purchaser_email} onChange={(e) => setForm({ ...form, purchaser_email: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Recipient Name</label>
-              <input type="text" value={form.recipient_name} onChange={(e) => setForm({ ...form, recipient_name: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+              <label className="block text-sm text-slate-700 mb-1">Recipient Name</label>
+              <input type="text" value={form.recipient_name} onChange={(e) => setForm({ ...form, recipient_name: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Recipient Email</label>
-              <input type="email" value={form.recipient_email} onChange={(e) => setForm({ ...form, recipient_email: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+              <label className="block text-sm text-slate-700 mb-1">Recipient Email</label>
+              <input type="email" value={form.recipient_email} onChange={(e) => setForm({ ...form, recipient_email: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
             </div>
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Message</label>
-            <textarea value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} rows={3} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+            <label className="block text-sm text-slate-700 mb-1">Message</label>
+            <textarea value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} rows={3} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Expires At (optional)</label>
-            <input type="date" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+            <label className="block text-sm text-slate-700 mb-1">Expires At (optional)</label>
+            <input type="date" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">Cancel</button>
-            <button onClick={handleCreate} className="px-4 py-2 bg-brand hover:bg-brand/80 text-white rounded-lg text-sm font-medium transition-colors">Create Gift Card</button>
+            <button onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm text-slate-700 hover:text-brand transition-colors">Cancel</button>
+            <button onClick={handleCreate} className="px-4 py-2 bg-brand hover:bg-brand/80 text-slate-900 rounded-lg text-sm font-medium transition-colors">Create Gift Card</button>
           </div>
         </div>
       </Modal>
@@ -278,16 +278,16 @@ export default function GiftCardsPage() {
         <div className="space-y-4">
           {selectedCard && (
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-gray-400">Initial:</span> <span className="text-white font-medium">{formatCurrency(selectedCard.initial_amount)}</span></div>
-              <div><span className="text-gray-400">Balance:</span> <span className="text-white font-medium">{formatCurrency(selectedCard.balance)}</span></div>
+              <div><span className="text-slate-700">Initial:</span> <span className="text-slate-900 font-medium">{formatCurrency(selectedCard.initial_amount)}</span></div>
+              <div><span className="text-slate-700">Balance:</span> <span className="text-slate-900 font-medium">{formatCurrency(selectedCard.balance)}</span></div>
             </div>
           )}
           {transactions.length === 0 ? (
-            <div className="py-8 text-center text-gray-400">No transactions found</div>
+            <div className="py-8 text-center text-slate-700">No transactions found</div>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-left text-gray-400">
+                <tr className="border-b border-slate-200 text-left text-slate-700">
                   <th className="pb-3 font-medium">Type</th>
                   <th className="pb-3 font-medium">Amount</th>
                   <th className="pb-3 font-medium">Description</th>
@@ -296,13 +296,13 @@ export default function GiftCardsPage() {
               </thead>
               <tbody>
                 {transactions.map((t) => (
-                  <tr key={t.id} className="border-b border-white/5">
+                  <tr key={t.id} className="border-b border-slate-100">
                     <td className="py-2">
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${t.type === "purchase" ? "bg-green-500/20 text-green-400" : "bg-blue-500/20 text-blue-400"}`}>{t.type}</span>
                     </td>
                     <td className="py-2 font-medium">{t.type === "redemption" ? "-" : "+"}{formatCurrency(t.amount)}</td>
-                    <td className="py-2 text-gray-400">{t.description}</td>
-                    <td className="py-2 text-gray-400">{new Date(t.created_at).toLocaleString()}</td>
+                    <td className="py-2 text-slate-700">{t.description}</td>
+                    <td className="py-2 text-slate-700">{new Date(t.created_at).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>

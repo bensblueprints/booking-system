@@ -85,7 +85,7 @@ export default function CheckInPage() {
 
   const handlePrint = () => window.print();
 
-  const inputCls = "px-3 py-2 bg-surface border border-white/10 rounded-lg text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
+  const inputCls = "px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
 
   return (
     <div>
@@ -99,9 +99,9 @@ export default function CheckInPage() {
       `}</style>
 
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3 no-print">
-        <h1 className="text-2xl font-bold text-white">Check-in Manifest</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Check-in Manifest</h1>
         <div className="flex items-center gap-3">
-          <CalendarDays className="w-4 h-4 text-gray-400" />
+          <CalendarDays className="w-4 h-4 text-slate-700" />
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
         </div>
       </div>
@@ -113,9 +113,9 @@ export default function CheckInPage() {
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           <div className="space-y-2 no-print">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Slots for {date}</h2>
+            <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Slots for {date}</h2>
             {slots.length === 0 ? (
-              <p className="text-sm text-gray-400">No slots on this day.</p>
+              <p className="text-sm text-slate-700">No slots on this day.</p>
             ) : slots.map((slot) => (
               <button
                 key={slot.id}
@@ -123,38 +123,38 @@ export default function CheckInPage() {
                 className={`w-full text-left p-3 rounded-lg border transition-colors ${
                   selectedSlot?.id === slot.id
                     ? "bg-brand/20 border-brand"
-                    : "bg-surface-light border-white/10 hover:bg-white/5"
+                    : "bg-white border-slate-200 hover:bg-slate-100"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1">
                   <div className="w-2 h-5 rounded-full" style={{ backgroundColor: slot.product_color || "#1B6B8A" }} />
-                  <span className="text-sm font-medium text-white">{slot.product_name}</span>
+                  <span className="text-sm font-medium text-slate-900">{slot.product_name}</span>
                 </div>
-                <div className="text-xs text-gray-400">{slot.start_time} - {slot.end_time}</div>
-                <div className="text-xs text-gray-400 mt-1">{slot.booked_seats}/{slot.total_seats} booked</div>
+                <div className="text-xs text-slate-700">{slot.start_time} - {slot.end_time}</div>
+                <div className="text-xs text-slate-700 mt-1">{slot.booked_seats}/{slot.total_seats} booked</div>
               </button>
             ))}
           </div>
 
           <div className="xl:col-span-2 print-area">
             {selectedSlot ? (
-              <div className="bg-surface-light rounded-xl border border-white/10 p-5">
+              <div className="bg-white rounded-xl border border-slate-200 p-5">
                 <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
                   <div>
-                    <h2 className="text-lg font-semibold text-white">{selectedSlot.product_name}</h2>
-                    <p className="text-sm text-gray-400">{date} &middot; {selectedSlot.start_time} - {selectedSlot.end_time}</p>
+                    <h2 className="text-lg font-semibold text-slate-900">{selectedSlot.product_name}</h2>
+                    <p className="text-sm text-slate-700">{date} &middot; {selectedSlot.start_time} - {selectedSlot.end_time}</p>
                   </div>
-                  <button onClick={handlePrint} className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors no-print">
+                  <button onClick={handlePrint} className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-100 rounded-lg text-sm transition-colors no-print">
                     <Printer className="w-4 h-4" /> Print
                   </button>
                 </div>
 
                 <div className="mb-4">
                   <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-gray-400">{checkedCount} of {totalGuests} guests checked in</span>
-                    <span className="text-white font-medium">{Math.round(progressPct)}%</span>
+                    <span className="text-slate-700">{checkedCount} of {totalGuests} guests checked in</span>
+                    <span className="text-slate-900 font-medium">{Math.round(progressPct)}%</span>
                   </div>
-                  <div className="w-full bg-surface rounded-full h-2">
+                  <div className="w-full bg-slate-50 rounded-full h-2">
                     <div className="bg-success h-2 rounded-full transition-all" style={{ width: `${progressPct}%` }} />
                   </div>
                 </div>
@@ -164,7 +164,7 @@ export default function CheckInPage() {
                     <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
                   </div>
                 ) : manifest.length === 0 ? (
-                  <p className="text-sm text-gray-400">No bookings for this slot.</p>
+                  <p className="text-sm text-slate-700">No bookings for this slot.</p>
                 ) : (
                   <div className="space-y-2">
                     {manifest.map((entry) => (
@@ -173,21 +173,21 @@ export default function CheckInPage() {
                         className={`flex items-center gap-4 p-3 rounded-lg border transition-colors ${
                           entry.checked_in
                             ? "bg-success/10 border-success/30"
-                            : "bg-surface border-white/5"
+                            : "bg-slate-50 border-slate-100"
                         }`}
                       >
                         <button onClick={() => toggleCheckIn(entry)} className="shrink-0 no-print">
                           {entry.checked_in ? (
                             <CheckCircle2 className="w-6 h-6 text-success" />
                           ) : (
-                            <Circle className="w-6 h-6 text-gray-500 hover:text-white transition-colors" />
+                            <Circle className="w-6 h-6 text-slate-600 hover:text-brand transition-colors" />
                           )}
                         </button>
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-white">{entry.customer_name}</div>
-                          <div className="text-xs text-gray-400">{entry.customer_email} {entry.customer_phone ? `| ${entry.customer_phone}` : ""}</div>
+                          <div className="text-sm font-medium text-slate-900">{entry.customer_name}</div>
+                          <div className="text-xs text-slate-700">{entry.customer_email} {entry.customer_phone ? `| ${entry.customer_phone}` : ""}</div>
                         </div>
-                        <div className="text-sm text-gray-300 shrink-0">
+                        <div className="text-sm text-slate-900 shrink-0">
                           {entry.party_size} guest{entry.party_size !== 1 ? "s" : ""}
                         </div>
                       </div>
@@ -196,8 +196,8 @@ export default function CheckInPage() {
                 )}
               </div>
             ) : (
-              <div className="bg-surface-light rounded-xl border border-white/10 p-12 text-center">
-                <p className="text-gray-400">Select a slot to view its check-in manifest.</p>
+              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                <p className="text-slate-700">Select a slot to view its check-in manifest.</p>
               </div>
             )}
           </div>

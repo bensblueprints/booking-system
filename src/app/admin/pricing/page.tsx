@@ -233,7 +233,7 @@ export default function PricingPage() {
           <select
             value={selectedProduct}
             onChange={(e) => setSelectedProduct(e.target.value)}
-            className="bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm"
+            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm"
           >
             {products.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -241,18 +241,18 @@ export default function PricingPage() {
           </select>
           <button
             onClick={openCreate}
-            className="flex items-center gap-2 bg-brand hover:bg-brand/80 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center gap-2 bg-brand hover:bg-brand/80 text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
           >
             <Plus className="w-4 h-4" /> Add Rule
           </button>
         </div>
       </div>
 
-      <div className="bg-surface-light border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-left text-gray-400">
+              <tr className="border-b border-slate-200 text-left text-slate-700">
                 <th className="px-4 py-3 font-medium">Name</th>
                 <th className="px-4 py-3 font-medium">Type</th>
                 <th className="px-4 py-3 font-medium">Condition</th>
@@ -264,34 +264,34 @@ export default function PricingPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">Loading...</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-700">Loading...</td></tr>
               ) : rules.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No pricing rules for this product</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-700">No pricing rules for this product</td></tr>
               ) : (
                 rules.map((rule) => (
-                  <tr key={rule.id} className="border-b border-white/5 hover:bg-white/5">
-                    <td className="px-4 py-3 font-medium text-white">{rule.name}</td>
+                  <tr key={rule.id} className="border-b border-slate-100 hover:bg-slate-100">
+                    <td className="px-4 py-3 font-medium text-slate-900">{rule.name}</td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded text-xs font-medium bg-brand/20 text-brand">
                         {ruleTypes.find((t) => t.value === rule.rule_type)?.label || rule.rule_type}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-400">{conditionSummary(rule)}</td>
+                    <td className="px-4 py-3 text-slate-700">{conditionSummary(rule)}</td>
                     <td className="px-4 py-3">
                       <span className={`font-medium ${rule.adjustment_value < 0 ? "text-green-400" : "text-red-400"}`}>
                         {adjustmentLabel(rule)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-400">{rule.priority}</td>
+                    <td className="px-4 py-3 text-slate-700">{rule.priority}</td>
                     <td className="px-4 py-3">
                       <span className={`w-2 h-2 rounded-full inline-block ${rule.active ? "bg-green-400" : "bg-gray-500"}`} />
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => openEdit(rule)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
-                          <Pencil className="w-4 h-4 text-gray-400" />
+                        <button onClick={() => openEdit(rule)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
+                          <Pencil className="w-4 h-4 text-slate-700" />
                         </button>
-                        <button onClick={() => handleDelete(rule.id)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
+                        <button onClick={() => handleDelete(rule.id)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
                           <Trash2 className="w-4 h-4 text-red-400" />
                         </button>
                       </div>
@@ -305,7 +305,7 @@ export default function PricingPage() {
       </div>
 
       {/* Price Preview */}
-      <div className="bg-surface-light border border-white/10 rounded-xl p-5">
+      <div className="bg-white border border-slate-200 rounded-xl p-5">
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <Calculator className="w-5 h-5 text-brand" /> Price Preview
         </h2>
@@ -314,12 +314,12 @@ export default function PricingPage() {
             type="date"
             value={previewDate}
             onChange={(e) => setPreviewDate(e.target.value)}
-            className="bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm"
+            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm"
           />
           <button
             onClick={handlePreview}
             disabled={previewLoading || !previewDate}
-            className="px-4 py-2 bg-brand hover:bg-brand/80 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
+            className="px-4 py-2 bg-brand hover:bg-brand/80 disabled:opacity-50 text-slate-900 rounded-lg text-sm font-medium transition-colors"
           >
             {previewLoading ? "Calculating..." : "Calculate Price"}
           </button>
@@ -327,18 +327,18 @@ export default function PricingPage() {
         {preview && (
           <div className="space-y-3">
             <div className="flex items-center gap-4 text-sm">
-              <span className="text-gray-400">Base Price:</span>
-              <span className="text-white font-medium">${preview.base_price.toFixed(2)}</span>
+              <span className="text-slate-700">Base Price:</span>
+              <span className="text-slate-900 font-medium">${preview.base_price.toFixed(2)}</span>
             </div>
             {preview.rules_applied.map((r, i) => (
-              <div key={i} className="flex items-center gap-4 text-sm pl-4 border-l-2 border-white/10">
-                <span className="text-gray-400">{r.name}:</span>
+              <div key={i} className="flex items-center gap-4 text-sm pl-4 border-l-2 border-slate-200">
+                <span className="text-slate-700">{r.name}:</span>
                 <span className="text-accent font-medium">{r.adjustment}</span>
               </div>
             ))}
-            <div className="flex items-center gap-4 text-sm pt-2 border-t border-white/10">
-              <span className="text-gray-400">Final Price:</span>
-              <span className="text-white text-lg font-bold">${preview.final_price.toFixed(2)}</span>
+            <div className="flex items-center gap-4 text-sm pt-2 border-t border-slate-200">
+              <span className="text-slate-700">Final Price:</span>
+              <span className="text-slate-900 text-lg font-bold">${preview.final_price.toFixed(2)}</span>
             </div>
           </div>
         )}
@@ -348,12 +348,12 @@ export default function PricingPage() {
       <Modal open={showModal} onClose={() => setShowModal(false)} title={editingId ? "Edit Pricing Rule" : "Create Pricing Rule"} wide>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Name *</label>
-            <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" placeholder="Weekend Surge" />
+            <label className="block text-sm text-slate-700 mb-1">Name *</label>
+            <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" placeholder="Weekend Surge" />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Rule Type</label>
-            <select value={form.rule_type} onChange={(e) => setForm({ ...form, rule_type: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm">
+            <label className="block text-sm text-slate-700 mb-1">Rule Type</label>
+            <select value={form.rule_type} onChange={(e) => setForm({ ...form, rule_type: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm">
               {ruleTypes.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
@@ -361,22 +361,22 @@ export default function PricingPage() {
           {/* Conditional fields */}
           {(form.rule_type === "early_bird" || form.rule_type === "last_minute") && (
             <div>
-              <label className="block text-sm text-gray-400 mb-1">
+              <label className="block text-sm text-slate-700 mb-1">
                 {form.rule_type === "early_bird" ? "Book X+ days in advance" : "Within X days of departure"}
               </label>
-              <input type="number" min="1" value={form.days_before} onChange={(e) => setForm({ ...form, days_before: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+              <input type="number" min="1" value={form.days_before} onChange={(e) => setForm({ ...form, days_before: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
             </div>
           )}
           {form.rule_type === "day_of_week" && (
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Days</label>
+              <label className="block text-sm text-slate-700 mb-1">Days</label>
               <div className="flex gap-2">
                 {dayNames.map((name, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => toggleDay(i)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${form.day_of_week.includes(i) ? "bg-brand text-white" : "bg-surface border border-white/10 text-gray-400"}`}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${form.day_of_week.includes(i) ? "bg-brand text-white" : "bg-slate-50 border border-slate-200 text-slate-700"}`}
                   >
                     {name}
                   </button>
@@ -386,51 +386,51 @@ export default function PricingPage() {
           )}
           {form.rule_type === "demand" && (
             <div>
-              <label className="block text-sm text-gray-400 mb-1">When occupancy exceeds X%</label>
-              <input type="number" min="0" max="100" value={form.threshold_pct} onChange={(e) => setForm({ ...form, threshold_pct: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+              <label className="block text-sm text-slate-700 mb-1">When occupancy exceeds X%</label>
+              <input type="number" min="0" max="100" value={form.threshold_pct} onChange={(e) => setForm({ ...form, threshold_pct: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
             </div>
           )}
           {form.rule_type === "date_range" && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Start Date</label>
-                <input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+                <label className="block text-sm text-slate-700 mb-1">Start Date</label>
+                <input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">End Date</label>
-                <input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+                <label className="block text-sm text-slate-700 mb-1">End Date</label>
+                <input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
               </div>
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Adjustment Type</label>
-              <select value={form.adjustment_type} onChange={(e) => setForm({ ...form, adjustment_type: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm">
+              <label className="block text-sm text-slate-700 mb-1">Adjustment Type</label>
+              <select value={form.adjustment_type} onChange={(e) => setForm({ ...form, adjustment_type: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm">
                 <option value="percent">Percentage</option>
                 <option value="fixed">Fixed Amount</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Value (negative = discount)</label>
-              <input type="number" step="0.01" value={form.adjustment_value} onChange={(e) => setForm({ ...form, adjustment_value: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" placeholder="-10" />
+              <label className="block text-sm text-slate-700 mb-1">Value (negative = discount)</label>
+              <input type="number" step="0.01" value={form.adjustment_value} onChange={(e) => setForm({ ...form, adjustment_value: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" placeholder="-10" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Priority</label>
-              <input type="number" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" />
+              <label className="block text-sm text-slate-700 mb-1">Priority</label>
+              <input type="number" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
             </div>
             <div className="flex items-end pb-1">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-4 h-4 rounded border-white/10" />
+                <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-4 h-4 rounded border-slate-200" />
                 <span className="text-sm">Active</span>
               </label>
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">Cancel</button>
-            <button onClick={handleSave} className="px-4 py-2 bg-brand hover:bg-brand/80 text-white rounded-lg text-sm font-medium transition-colors">
+            <button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-700 hover:text-brand transition-colors">Cancel</button>
+            <button onClick={handleSave} className="px-4 py-2 bg-brand hover:bg-brand/80 text-slate-900 rounded-lg text-sm font-medium transition-colors">
               {editingId ? "Update Rule" : "Create Rule"}
             </button>
           </div>

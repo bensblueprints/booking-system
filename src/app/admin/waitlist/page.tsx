@@ -93,15 +93,15 @@ export default function WaitlistPage() {
     const colors: Record<string, string> = {
       waiting: "bg-yellow-500/20 text-yellow-400",
       notified: "bg-blue-500/20 text-blue-400",
-      booked: "bg-success/20 text-success",
-      expired: "bg-gray-500/20 text-gray-400",
+      booked: "bg-green-100 text-success",
+      expired: "bg-slate-200 text-slate-700",
     };
-    return <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${colors[status] || "bg-gray-500/20 text-gray-400"}`}>{status}</span>;
+    return <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${colors[status] || "bg-slate-200 text-slate-700"}`}>{status}</span>;
   };
 
   const statuses = ["waiting", "notified", "booked", "expired"];
 
-  const selectCls = "px-3 py-2 bg-surface-light border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand";
+  const selectCls = "px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-brand";
 
   if (loading && entries.length === 0) {
     return (
@@ -114,11 +114,11 @@ export default function WaitlistPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-white">Waitlist</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Waitlist</h1>
       </div>
 
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <Filter className="w-4 h-4 text-gray-400" />
+        <Filter className="w-4 h-4 text-slate-700" />
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className={selectCls}>
           <option value="">All Statuses</option>
           {statuses.map((s) => (
@@ -134,46 +134,46 @@ export default function WaitlistPage() {
       </div>
 
       {entries.length === 0 ? (
-        <div className="bg-surface-light rounded-xl border border-white/10 p-12 text-center">
-          <p className="text-gray-400">No waitlist entries found.</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+          <p className="text-slate-700">No waitlist entries found.</p>
         </div>
       ) : (
-        <div className="bg-surface-light rounded-xl border border-white/10 overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Customer</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Product</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Date/Time</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Party</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Available</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Status</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Created</th>
-                  <th className="text-right px-4 py-3 text-gray-400 font-medium">Actions</th>
+                <tr className="border-b border-slate-200">
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Customer</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Product</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Date/Time</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Party</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Available</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Status</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Created</th>
+                  <th className="text-right px-4 py-3 text-slate-700 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {entries.map((e) => (
-                  <tr key={e.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                  <tr key={e.id} className="border-b border-slate-100 hover:bg-slate-100 transition-colors">
                     <td className="px-4 py-3">
-                      <div className="text-white font-medium">{e.customer_name}</div>
-                      <div className="text-xs text-gray-400">{e.customer_email}</div>
-                      {e.customer_phone && <div className="text-xs text-gray-500">{e.customer_phone}</div>}
+                      <div className="text-slate-900 font-medium">{e.customer_name}</div>
+                      <div className="text-xs text-slate-700">{e.customer_email}</div>
+                      {e.customer_phone && <div className="text-xs text-slate-600">{e.customer_phone}</div>}
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{e.product_name}</td>
-                    <td className="px-4 py-3 text-gray-300">
+                    <td className="px-4 py-3 text-slate-900">{e.product_name}</td>
+                    <td className="px-4 py-3 text-slate-900">
                       <div>{e.slot_date}</div>
-                      <div className="text-xs text-gray-400">{e.slot_time}</div>
+                      <div className="text-xs text-slate-700">{e.slot_time}</div>
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{e.party_size}</td>
+                    <td className="px-4 py-3 text-slate-900">{e.party_size}</td>
                     <td className="px-4 py-3">
                       <span className={`text-sm font-medium ${e.seats_available >= e.party_size ? "text-success" : "text-danger"}`}>
                         {e.seats_available} seats
                       </span>
                     </td>
                     <td className="px-4 py-3">{statusBadge(e.status)}</td>
-                    <td className="px-4 py-3 text-gray-400">{new Date(e.created_at).toLocaleDateString()}</td>
+                    <td className="px-4 py-3 text-slate-700">{new Date(e.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">
                         {e.status === "waiting" && (
@@ -181,7 +181,7 @@ export default function WaitlistPage() {
                             <Bell className="w-3.5 h-3.5" /> Notify
                           </button>
                         )}
-                        <button onClick={() => handleRemove(e.id)} className="p-1.5 hover:bg-danger/10 rounded-lg transition-colors text-gray-400 hover:text-danger" title="Remove">
+                        <button onClick={() => handleRemove(e.id)} className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-slate-700 hover:text-danger" title="Remove">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>

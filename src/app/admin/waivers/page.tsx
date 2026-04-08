@@ -147,8 +147,8 @@ export default function WaiversPage() {
     }
   };
 
-  const inputCls = "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
-  const labelCls = "block text-sm font-medium text-gray-300 mb-1";
+  const inputCls = "w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
+  const labelCls = "block text-sm font-medium text-slate-900 mb-1";
 
   if (loading) {
     return (
@@ -161,55 +161,55 @@ export default function WaiversPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Waivers</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Waivers</h1>
         <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-dark rounded-lg text-sm font-medium transition-colors">
           <Plus className="w-4 h-4" /> Add Waiver
         </button>
       </div>
 
       {waivers.length === 0 ? (
-        <div className="bg-surface-light rounded-xl border border-white/10 p-12 text-center">
-          <p className="text-gray-400">No waivers yet.</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+          <p className="text-slate-700">No waivers yet.</p>
         </div>
       ) : (
-        <div className="bg-surface-light rounded-xl border border-white/10 overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Name</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Product</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Required</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Status</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Signatures</th>
-                  <th className="text-right px-4 py-3 text-gray-400 font-medium">Actions</th>
+                <tr className="border-b border-slate-200">
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Name</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Product</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Required</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Status</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Signatures</th>
+                  <th className="text-right px-4 py-3 text-slate-700 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {waivers.map((w) => (
-                  <tr key={w.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="px-4 py-3 text-white font-medium">{w.name}</td>
-                    <td className="px-4 py-3 text-gray-300">{w.product_name || "All Products"}</td>
+                  <tr key={w.id} className="border-b border-slate-100 hover:bg-slate-100 transition-colors">
+                    <td className="px-4 py-3 text-slate-900 font-medium">{w.name}</td>
+                    <td className="px-4 py-3 text-slate-900">{w.product_name || "All Products"}</td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${w.required ? "bg-yellow-500/20 text-yellow-400" : "bg-white/10 text-gray-400"}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${w.required ? "bg-yellow-500/20 text-yellow-400" : "bg-slate-200 text-slate-700"}`}>
                         {w.required ? "Required" : "Optional"}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${w.active ? "bg-success/20 text-success" : "bg-gray-500/20 text-gray-400"}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${w.active ? "bg-green-100 text-success" : "bg-slate-200 text-slate-700"}`}>
                         {w.active ? "Active" : "Inactive"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{w.signatures_count}</td>
+                    <td className="px-4 py-3 text-slate-900">{w.signatures_count}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => viewSignatures(w)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white" title="View Signatures">
+                        <button onClick={() => viewSignatures(w)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-700 hover:text-brand" title="View Signatures">
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button onClick={() => openEdit(w)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white" title="Edit">
+                        <button onClick={() => openEdit(w)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-700 hover:text-brand" title="Edit">
                           <Pencil className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleDelete(w.id)} className="p-1.5 hover:bg-danger/10 rounded-lg transition-colors text-gray-400 hover:text-danger" title="Delete">
+                        <button onClick={() => handleDelete(w.id)} className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-slate-700 hover:text-danger" title="Delete">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -243,16 +243,16 @@ export default function WaiversPage() {
           </div>
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={form.required} onChange={(e) => setForm({ ...form, required: e.target.checked })} className="w-4 h-4 rounded border-white/20 accent-brand" />
-              <span className="text-sm text-gray-300">Required</span>
+              <input type="checkbox" checked={form.required} onChange={(e) => setForm({ ...form, required: e.target.checked })} className="w-4 h-4 rounded border-slate-300 accent-brand" />
+              <span className="text-sm text-slate-900">Required</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-4 h-4 rounded border-white/20 accent-brand" />
-              <span className="text-sm text-gray-300">Active</span>
+              <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-4 h-4 rounded border-slate-300 accent-brand" />
+              <span className="text-sm text-slate-900">Active</span>
             </label>
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-            <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm bg-white/5 hover:bg-white/10 rounded-lg transition-colors">Cancel</button>
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+            <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
             <button type="submit" disabled={saving} className="px-4 py-2 text-sm bg-brand hover:bg-brand-dark rounded-lg font-medium transition-colors disabled:opacity-50">
               {saving ? "Saving..." : editId ? "Update" : "Create"}
             </button>
@@ -266,16 +266,16 @@ export default function WaiversPage() {
             <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
           </div>
         ) : signatures.length === 0 ? (
-          <p className="text-sm text-gray-400">No signatures yet.</p>
+          <p className="text-sm text-slate-700">No signatures yet.</p>
         ) : (
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {signatures.map((s) => (
-              <div key={s.id} className="flex items-center justify-between bg-surface rounded-lg px-4 py-3">
+              <div key={s.id} className="flex items-center justify-between bg-slate-50 rounded-lg px-4 py-3">
                 <div>
-                  <div className="text-sm font-medium text-white">{s.customer_name}</div>
-                  <div className="text-xs text-gray-400">Booking: {s.booking_reference}</div>
+                  <div className="text-sm font-medium text-slate-900">{s.customer_name}</div>
+                  <div className="text-xs text-slate-700">Booking: {s.booking_reference}</div>
                 </div>
-                <div className="text-xs text-gray-400">{new Date(s.signed_at).toLocaleDateString()}</div>
+                <div className="text-xs text-slate-700">{new Date(s.signed_at).toLocaleDateString()}</div>
               </div>
             ))}
           </div>

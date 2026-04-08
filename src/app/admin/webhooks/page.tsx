@@ -170,16 +170,16 @@ export default function WebhooksPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Webhooks</h1>
-        <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 bg-brand hover:bg-brand/80 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+        <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 bg-brand hover:bg-brand/80 text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
           <Plus className="w-4 h-4" /> Add Webhook
         </button>
       </div>
 
-      <div className="bg-surface-light border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-left text-gray-400">
+              <tr className="border-b border-slate-200 text-left text-slate-700">
                 <th className="px-4 py-3 font-medium">URL</th>
                 <th className="px-4 py-3 font-medium">Events</th>
                 <th className="px-4 py-3 font-medium">Active</th>
@@ -189,13 +189,13 @@ export default function WebhooksPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Loading...</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-700">Loading...</td></tr>
               ) : webhooks.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">No webhooks configured</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-700">No webhooks configured</td></tr>
               ) : (
                 webhooks.map((wh) => (
-                  <tr key={wh.id} className="border-b border-white/5 hover:bg-white/5">
-                    <td className="px-4 py-3 font-mono text-white text-xs max-w-64 truncate">{wh.url}</td>
+                  <tr key={wh.id} className="border-b border-slate-100 hover:bg-slate-100">
+                    <td className="px-4 py-3 font-mono text-slate-900 text-xs max-w-64 truncate">{wh.url}</td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
                         {wh.events.map((e) => (
@@ -206,18 +206,18 @@ export default function WebhooksPage() {
                     <td className="px-4 py-3">
                       <span className={`w-2 h-2 rounded-full inline-block ${wh.active ? "bg-green-400" : "bg-gray-500"}`} />
                     </td>
-                    <td className="px-4 py-3 text-gray-400 text-xs">
+                    <td className="px-4 py-3 text-slate-700 text-xs">
                       {wh.last_delivery_at ? new Date(wh.last_delivery_at).toLocaleString() : "Never"}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => viewLog(wh)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title="View Log">
-                          <Eye className="w-4 h-4 text-gray-400" />
+                        <button onClick={() => viewLog(wh)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title="View Log">
+                          <Eye className="w-4 h-4 text-slate-700" />
                         </button>
-                        <button onClick={() => handleTest(wh.id)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title="Send Test">
+                        <button onClick={() => handleTest(wh.id)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title="Send Test">
                           <Play className="w-4 h-4 text-green-400" />
                         </button>
-                        <button onClick={() => handleDelete(wh.id)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title="Delete">
+                        <button onClick={() => handleDelete(wh.id)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title="Delete">
                           <Trash2 className="w-4 h-4 text-red-400" />
                         </button>
                       </div>
@@ -234,27 +234,27 @@ export default function WebhooksPage() {
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Add Webhook">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Endpoint URL *</label>
-            <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm font-mono" placeholder="https://example.com/webhook" />
+            <label className="block text-sm text-slate-700 mb-1">Endpoint URL *</label>
+            <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono" placeholder="https://example.com/webhook" />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-2">Events *</label>
+            <label className="block text-sm text-slate-700 mb-2">Events *</label>
             <div className="space-y-2">
               {allEvents.map((event) => (
                 <label key={event} className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={form.events.includes(event)} onChange={() => toggleEvent(event)} className="w-4 h-4 rounded border-white/10" />
+                  <input type="checkbox" checked={form.events.includes(event)} onChange={() => toggleEvent(event)} className="w-4 h-4 rounded border-slate-200" />
                   <span className="text-sm font-mono">{event}</span>
                 </label>
               ))}
             </div>
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-4 h-4 rounded border-white/10" />
+            <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-4 h-4 rounded border-slate-200" />
             <span className="text-sm">Active</span>
           </label>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">Cancel</button>
-            <button onClick={handleCreate} className="px-4 py-2 bg-brand hover:bg-brand/80 text-white rounded-lg text-sm font-medium transition-colors">Create Webhook</button>
+            <button onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm text-slate-700 hover:text-brand transition-colors">Cancel</button>
+            <button onClick={handleCreate} className="px-4 py-2 bg-brand hover:bg-brand/80 text-slate-900 rounded-lg text-sm font-medium transition-colors">Create Webhook</button>
           </div>
         </div>
       </Modal>
@@ -267,13 +267,13 @@ export default function WebhooksPage() {
             <p className="text-sm text-accent">Save this secret now — it won{"'"}t be shown again.</p>
           </div>
           <div className="flex items-center gap-2">
-            <code className="flex-1 bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm font-mono break-all">{createdSecret}</code>
-            <button onClick={copySecret} className="p-2 hover:bg-white/10 rounded-lg transition-colors" title="Copy">
+            <code className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono break-all">{createdSecret}</code>
+            <button onClick={copySecret} className="p-2 hover:bg-slate-100 rounded-lg transition-colors" title="Copy">
               <Copy className="w-4 h-4" />
             </button>
           </div>
           <div className="flex justify-end">
-            <button onClick={() => setShowSecret(false)} className="px-4 py-2 bg-brand hover:bg-brand/80 text-white rounded-lg text-sm font-medium transition-colors">Done</button>
+            <button onClick={() => setShowSecret(false)} className="px-4 py-2 bg-brand hover:bg-brand/80 text-slate-900 rounded-lg text-sm font-medium transition-colors">Done</button>
           </div>
         </div>
       </Modal>
@@ -281,27 +281,27 @@ export default function WebhooksPage() {
       {/* Delivery Log Modal */}
       <Modal open={showLog} onClose={() => setShowLog(false)} title={`Delivery Log — ${selectedWebhook?.url || ""}`} wide>
         {logs.length === 0 ? (
-          <div className="py-8 text-center text-gray-400">No deliveries yet</div>
+          <div className="py-8 text-center text-slate-700">No deliveries yet</div>
         ) : (
           <div className="space-y-3">
             {logs.map((log) => (
-              <div key={log.id} className="bg-surface border border-white/10 rounded-lg p-3">
+              <div key={log.id} className="bg-slate-50 border border-slate-200 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-3">
                     <span className={`px-2 py-0.5 rounded text-xs font-bold ${log.status_code >= 200 && log.status_code < 300 ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
                       {log.status_code}
                     </span>
-                    <span className="text-xs text-gray-400 font-mono">{log.event}</span>
+                    <span className="text-xs text-slate-700 font-mono">{log.event}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400">{new Date(log.created_at).toLocaleString()}</span>
-                    <button onClick={() => retryDelivery(log.id)} className="p-1 hover:bg-white/10 rounded transition-colors" title="Retry">
-                      <RefreshCw className="w-3.5 h-3.5 text-gray-400" />
+                    <span className="text-xs text-slate-700">{new Date(log.created_at).toLocaleString()}</span>
+                    <button onClick={() => retryDelivery(log.id)} className="p-1 hover:bg-slate-100 rounded transition-colors" title="Retry">
+                      <RefreshCw className="w-3.5 h-3.5 text-slate-700" />
                     </button>
                   </div>
                 </div>
                 {log.response_snippet && (
-                  <pre className="text-xs text-gray-400 bg-black/20 rounded p-2 overflow-x-auto">{log.response_snippet}</pre>
+                  <pre className="text-xs text-slate-700 bg-black/20 rounded p-2 overflow-x-auto">{log.response_snippet}</pre>
                 )}
               </div>
             ))}

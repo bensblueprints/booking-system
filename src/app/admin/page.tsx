@@ -86,11 +86,11 @@ export default function AdminDashboard() {
 
   const statusColor = (status: string) => {
     switch (status) {
-      case "paid": return "bg-success/20 text-success";
+      case "paid": return "bg-green-100 text-success";
       case "deposit_paid": return "bg-brand/20 text-brand-light";
       case "pending": return "bg-warning/20 text-warning";
       case "cancelled": return "bg-danger/20 text-danger";
-      default: return "bg-gray-500/20 text-gray-400";
+      default: return "bg-slate-200 text-slate-700";
     }
   };
 
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-slate-900 mb-6">Dashboard</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
         <StatCard
@@ -138,19 +138,19 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="bg-surface-light rounded-xl border border-white/10 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <Clock className="w-5 h-5 text-brand-light" />
             Upcoming Slots
           </h2>
           {upcomingSlots.length === 0 ? (
-            <p className="text-gray-400 text-sm">No upcoming slots</p>
+            <p className="text-slate-700 text-sm">No upcoming slots</p>
           ) : (
             <div className="space-y-3">
               {upcomingSlots.map((slot) => (
                 <div
                   key={slot.id}
-                  className="flex items-center justify-between py-2 border-b border-white/5 last:border-0"
+                  className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -158,8 +158,8 @@ export default function AdminDashboard() {
                       style={{ backgroundColor: slot.product_color || "#1B6B8A" }}
                     />
                     <div>
-                      <div className="text-sm font-medium text-white">{slot.product_name}</div>
-                      <div className="text-xs text-gray-400">
+                      <div className="text-sm font-medium text-slate-900">{slot.product_name}</div>
+                      <div className="text-xs text-slate-700">
                         {slot.date} &middot; {slot.start_time} - {slot.end_time}
                       </div>
                     </div>
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
                     <div className="text-sm font-medium">
                       {slot.booked_seats}/{slot.total_seats}
                     </div>
-                    <div className="text-xs text-gray-400">seats</div>
+                    <div className="text-xs text-slate-700">seats</div>
                   </div>
                 </div>
               ))}
@@ -176,23 +176,23 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        <div className="bg-surface-light rounded-xl border border-white/10 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-brand-light" />
             Recent Bookings
           </h2>
           {recentBookings.length === 0 ? (
-            <p className="text-gray-400 text-sm">No bookings yet</p>
+            <p className="text-slate-700 text-sm">No bookings yet</p>
           ) : (
             <div className="space-y-3">
               {recentBookings.map((b) => (
                 <div
                   key={b.id}
-                  className="flex items-center justify-between py-2 border-b border-white/5 last:border-0"
+                  className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0"
                 >
                   <div>
-                    <div className="text-sm font-medium text-white">{b.customer_name}</div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-sm font-medium text-slate-900">{b.customer_name}</div>
+                    <div className="text-xs text-slate-700">
                       {b.product_name} &middot; {b.date} &middot; {b.party_size} guests
                     </div>
                   </div>
@@ -226,15 +226,15 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="bg-surface-light rounded-xl border border-white/10 p-5">
+    <div className="bg-white rounded-xl border border-slate-200 p-5">
       <div className="flex items-center gap-3 mb-3">
-        <div className={`${color} w-9 h-9 rounded-lg flex items-center justify-center text-white`}>
+        <div className={`${color} w-9 h-9 rounded-lg flex items-center justify-center text-slate-900`}>
           {icon}
         </div>
-        <span className="text-sm text-gray-400">{label}</span>
+        <span className="text-sm text-slate-700">{label}</span>
       </div>
-      <div className="text-2xl font-bold text-white">{value}</div>
-      <div className="text-xs text-gray-400 mt-1">{sub}</div>
+      <div className="text-2xl font-bold text-slate-900">{value}</div>
+      <div className="text-xs text-slate-700 mt-1">{sub}</div>
     </div>
   );
 }

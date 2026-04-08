@@ -112,11 +112,11 @@ export default function ResourcesPage() {
       guide: "bg-purple-500/20 text-purple-400",
       equipment: "bg-orange-500/20 text-orange-400",
     };
-    return <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${colors[type] || "bg-gray-500/20 text-gray-400"}`}>{type}</span>;
+    return <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${colors[type] || "bg-slate-200 text-slate-700"}`}>{type}</span>;
   };
 
-  const inputCls = "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
-  const labelCls = "block text-sm font-medium text-gray-300 mb-1";
+  const inputCls = "w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
+  const labelCls = "block text-sm font-medium text-slate-900 mb-1";
 
   if (loading) {
     return (
@@ -129,48 +129,48 @@ export default function ResourcesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Resources</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Resources</h1>
         <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-dark rounded-lg text-sm font-medium transition-colors">
           <Plus className="w-4 h-4" /> Add Resource
         </button>
       </div>
 
       {resources.length === 0 ? (
-        <div className="bg-surface-light rounded-xl border border-white/10 p-12 text-center">
-          <p className="text-gray-400">No resources yet. Add boats, vehicles, guides, or equipment.</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+          <p className="text-slate-700">No resources yet. Add boats, vehicles, guides, or equipment.</p>
         </div>
       ) : (
-        <div className="bg-surface-light rounded-xl border border-white/10 overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Name</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Type</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Capacity</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Notes</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Status</th>
-                  <th className="text-right px-4 py-3 text-gray-400 font-medium">Actions</th>
+                <tr className="border-b border-slate-200">
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Name</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Type</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Capacity</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Notes</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Status</th>
+                  <th className="text-right px-4 py-3 text-slate-700 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {resources.map((r) => (
-                  <tr key={r.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="px-4 py-3 text-white font-medium">{r.name}</td>
+                  <tr key={r.id} className="border-b border-slate-100 hover:bg-slate-100 transition-colors">
+                    <td className="px-4 py-3 text-slate-900 font-medium">{r.name}</td>
                     <td className="px-4 py-3">{typeIcon(r.type)}</td>
-                    <td className="px-4 py-3 text-gray-300">{r.capacity || "-"}</td>
-                    <td className="px-4 py-3 text-gray-400 max-w-xs truncate">{r.notes || "-"}</td>
+                    <td className="px-4 py-3 text-slate-900">{r.capacity || "-"}</td>
+                    <td className="px-4 py-3 text-slate-700 max-w-xs truncate">{r.notes || "-"}</td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${r.active ? "bg-success/20 text-success" : "bg-gray-500/20 text-gray-400"}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${r.active ? "bg-green-100 text-success" : "bg-slate-200 text-slate-700"}`}>
                         {r.active ? "Active" : "Inactive"}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => openEdit(r)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white" title="Edit">
+                        <button onClick={() => openEdit(r)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-700 hover:text-brand" title="Edit">
                           <Pencil className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleDelete(r.id)} className="p-1.5 hover:bg-danger/10 rounded-lg transition-colors text-gray-400 hover:text-danger" title="Delete">
+                        <button onClick={() => handleDelete(r.id)} className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-slate-700 hover:text-danger" title="Delete">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -206,11 +206,11 @@ export default function ResourcesPage() {
             <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className={`${inputCls} h-20 resize-none`} placeholder="Optional notes..." />
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-4 h-4 rounded border-white/20 accent-brand" />
-            <span className="text-sm text-gray-300">Active</span>
+            <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-4 h-4 rounded border-slate-300 accent-brand" />
+            <span className="text-sm text-slate-900">Active</span>
           </label>
-          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-            <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm bg-white/5 hover:bg-white/10 rounded-lg transition-colors">Cancel</button>
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+            <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
             <button type="submit" disabled={saving} className="px-4 py-2 text-sm bg-brand hover:bg-brand-dark rounded-lg font-medium transition-colors disabled:opacity-50">
               {saving ? "Saving..." : editId ? "Update" : "Create"}
             </button>

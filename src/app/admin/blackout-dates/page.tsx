@@ -216,16 +216,16 @@ export default function BlackoutDatesPage() {
   const monthName = new Date(year, month).toLocaleString("default", { month: "long" });
 
   const inputCls =
-    "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
-  const labelCls = "block text-sm font-medium text-gray-300 mb-1";
+    "w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
+  const labelCls = "block text-sm font-medium text-slate-900 mb-1";
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
           <CalendarX className="w-6 h-6 text-brand-light" />
           Blackout Dates
-          <span className="text-sm font-normal text-gray-400">
+          <span className="text-sm font-normal text-slate-700">
             ({blackoutCount} this month)
           </span>
         </h1>
@@ -240,20 +240,20 @@ export default function BlackoutDatesPage() {
 
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <div className="flex items-center gap-2">
-          <button onClick={prevMonth} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
+          <button onClick={prevMonth} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <span className="text-lg font-semibold text-white min-w-36 text-center">
+          <span className="text-lg font-semibold text-slate-900 min-w-36 text-center">
             {monthName} {year}
           </span>
-          <button onClick={nextMonth} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
+          <button onClick={nextMonth} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
         <select
           value={filterProduct}
           onChange={(e) => setFilterProduct(e.target.value)}
-          className="px-3 py-2 bg-surface-light border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
+          className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-brand"
         >
           <option value="">All Products</option>
           {products.map((p) => (
@@ -269,10 +269,10 @@ export default function BlackoutDatesPage() {
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Calendar */}
-          <div className="xl:col-span-2 bg-surface-light rounded-xl border border-white/10 p-4">
+          <div className="xl:col-span-2 bg-white rounded-xl border border-slate-200 p-4">
             <div className="grid grid-cols-7 gap-px">
               {DAY_LABELS.map((d) => (
-                <div key={d} className="text-center text-xs font-medium text-gray-400 py-2">
+                <div key={d} className="text-center text-xs font-medium text-slate-700 py-2">
                   {d}
                 </div>
               ))}
@@ -296,8 +296,8 @@ export default function BlackoutDatesPage() {
                         : isSelected
                         ? "bg-brand/20 border border-brand"
                         : isToday
-                        ? "bg-white/5 border border-white/10"
-                        : "hover:bg-white/5 border border-transparent"
+                        ? "bg-slate-100 border border-slate-200"
+                        : "hover:bg-slate-100 border border-transparent"
                     }`}
                   >
                     <span
@@ -306,7 +306,7 @@ export default function BlackoutDatesPage() {
                           ? "text-danger"
                           : isToday
                           ? "text-brand-light"
-                          : "text-gray-300"
+                          : "text-slate-900"
                       }`}
                     >
                       {day}
@@ -323,28 +323,28 @@ export default function BlackoutDatesPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="bg-surface-light rounded-xl border border-white/10 p-5">
+          <div className="bg-white rounded-xl border border-slate-200 p-5">
             {quickDate ? (
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-sm font-semibold text-white">{quickDate}</h2>
+                  <h2 className="text-sm font-semibold text-slate-900">{quickDate}</h2>
                   <button
                     onClick={() => setQuickDate(null)}
-                    className="p-1 hover:bg-white/5 rounded-lg transition-colors"
+                    className="p-1 hover:bg-slate-100 rounded-lg transition-colors"
                   >
-                    <X className="w-4 h-4 text-gray-400" />
+                    <X className="w-4 h-4 text-slate-700" />
                   </button>
                 </div>
 
                 {/* Existing blackouts for this date */}
                 {blackoutsForDate(quickDate).length > 0 && (
                   <div className="space-y-2 mb-4">
-                    <div className="text-xs font-medium text-gray-400 uppercase">Existing Blackouts</div>
+                    <div className="text-xs font-medium text-slate-700 uppercase">Existing Blackouts</div>
                     {blackoutsForDate(quickDate).map((b) => (
-                      <div key={b.id} className="flex items-center justify-between bg-danger/10 rounded-lg p-2.5 border border-danger/20">
+                      <div key={b.id} className="flex items-center justify-between bg-red-50 rounded-lg p-2.5 border border-danger/20">
                         <div>
-                          <div className="text-sm text-white">{b.product_name || "All Products"}</div>
-                          {b.reason && <div className="text-xs text-gray-400">{b.reason}</div>}
+                          <div className="text-sm text-slate-900">{b.product_name || "All Products"}</div>
+                          {b.reason && <div className="text-xs text-slate-700">{b.reason}</div>}
                         </div>
                         <button
                           onClick={() => handleRemove(b.id)}
@@ -359,8 +359,8 @@ export default function BlackoutDatesPage() {
                 )}
 
                 {/* Quick add form */}
-                <div className="space-y-3 pt-3 border-t border-white/10">
-                  <div className="text-xs font-medium text-gray-400 uppercase">Add Blackout</div>
+                <div className="space-y-3 pt-3 border-t border-slate-200">
+                  <div className="text-xs font-medium text-slate-700 uppercase">Add Blackout</div>
                   <div>
                     <label className={labelCls}>Product</label>
                     <select
@@ -397,8 +397,8 @@ export default function BlackoutDatesPage() {
             ) : (
               <div className="text-center py-8">
                 <CalendarX className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-                <p className="text-sm text-gray-400">Click a date to add or remove a blackout.</p>
-                <p className="text-xs text-gray-500 mt-1">Red dates are currently blocked.</p>
+                <p className="text-sm text-slate-700">Click a date to add or remove a blackout.</p>
+                <p className="text-xs text-slate-600 mt-1">Red dates are currently blocked.</p>
               </div>
             )}
           </div>
@@ -454,11 +454,11 @@ export default function BlackoutDatesPage() {
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
             <button
               type="button"
               onClick={() => setBulkOpen(false)}
-              className="px-4 py-2 text-sm bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors"
             >
               Cancel
             </button>

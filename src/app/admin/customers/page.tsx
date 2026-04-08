@@ -138,24 +138,24 @@ export default function CustomersPage() {
   };
 
   const SortIcon = ({ col }: { col: string }) => {
-    if (sort !== col) return <ArrowUpDown className="w-3.5 h-3.5 text-gray-500" />;
+    if (sort !== col) return <ArrowUpDown className="w-3.5 h-3.5 text-slate-600" />;
     return order === "asc" ? <ArrowUp className="w-3.5 h-3.5 text-brand-light" /> : <ArrowDown className="w-3.5 h-3.5 text-brand-light" />;
   };
 
-  const inputCls = "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
-  const labelCls = "block text-sm font-medium text-gray-300 mb-1";
+  const inputCls = "w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
+  const labelCls = "block text-sm font-medium text-slate-900 mb-1";
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-white">Customers</h1>
-        <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm font-medium transition-colors">
+        <h1 className="text-2xl font-bold text-slate-900">Customers</h1>
+        <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors">
           <Download className="w-4 h-4" /> Export CSV
         </button>
       </div>
 
       <div className="relative mb-4 max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" />
         <input
           type="text"
           value={search}
@@ -170,28 +170,28 @@ export default function CustomersPage() {
           <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
         </div>
       ) : customers.length === 0 ? (
-        <div className="bg-surface-light rounded-xl border border-white/10 p-12 text-center">
-          <p className="text-gray-400">No customers found.</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+          <p className="text-slate-700">No customers found.</p>
         </div>
       ) : (
-        <div className="bg-surface-light rounded-xl border border-white/10 overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Name</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Email</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Phone</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium cursor-pointer select-none" onClick={() => toggleSort("total_bookings")}>
+                <tr className="border-b border-slate-200">
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Name</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Email</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Phone</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium cursor-pointer select-none" onClick={() => toggleSort("total_bookings")}>
                     <span className="flex items-center gap-1">Bookings <SortIcon col="total_bookings" /></span>
                   </th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium cursor-pointer select-none" onClick={() => toggleSort("total_spent")}>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium cursor-pointer select-none" onClick={() => toggleSort("total_spent")}>
                     <span className="flex items-center gap-1">Spent <SortIcon col="total_spent" /></span>
                   </th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium cursor-pointer select-none" onClick={() => toggleSort("last_booking")}>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium cursor-pointer select-none" onClick={() => toggleSort("last_booking")}>
                     <span className="flex items-center gap-1">Last Booking <SortIcon col="last_booking" /></span>
                   </th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Tags</th>
+                  <th className="text-left px-4 py-3 text-slate-700 font-medium">Tags</th>
                 </tr>
               </thead>
               <tbody>
@@ -199,14 +199,14 @@ export default function CustomersPage() {
                   <tr
                     key={c.id}
                     onClick={() => openDetail(c)}
-                    className="border-b border-white/5 hover:bg-white/5 cursor-pointer transition-colors"
+                    className="border-b border-slate-100 hover:bg-slate-100 cursor-pointer transition-colors"
                   >
-                    <td className="px-4 py-3 text-white font-medium">{c.name}</td>
-                    <td className="px-4 py-3 text-gray-300">{c.email}</td>
-                    <td className="px-4 py-3 text-gray-300">{c.phone || "-"}</td>
-                    <td className="px-4 py-3 text-gray-300">{c.total_bookings}</td>
-                    <td className="px-4 py-3 text-gray-300">${(c.total_spent / 100).toFixed(2)}</td>
-                    <td className="px-4 py-3 text-gray-300">{c.last_booking || "-"}</td>
+                    <td className="px-4 py-3 text-slate-900 font-medium">{c.name}</td>
+                    <td className="px-4 py-3 text-slate-900">{c.email}</td>
+                    <td className="px-4 py-3 text-slate-900">{c.phone || "-"}</td>
+                    <td className="px-4 py-3 text-slate-900">{c.total_bookings}</td>
+                    <td className="px-4 py-3 text-slate-900">${(c.total_spent / 100).toFixed(2)}</td>
+                    <td className="px-4 py-3 text-slate-900">{c.last_booking || "-"}</td>
                     <td className="px-4 py-3">
                       {c.tags ? (
                         <div className="flex flex-wrap gap-1">
@@ -232,17 +232,17 @@ export default function CustomersPage() {
         ) : detail ? (
           <div className="space-y-6">
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-surface rounded-lg p-3 text-center">
-                <div className="text-xl font-bold text-white">{detail.total_bookings}</div>
-                <div className="text-xs text-gray-400">Total Bookings</div>
+              <div className="bg-slate-50 rounded-lg p-3 text-center">
+                <div className="text-xl font-bold text-slate-900">{detail.total_bookings}</div>
+                <div className="text-xs text-slate-700">Total Bookings</div>
               </div>
-              <div className="bg-surface rounded-lg p-3 text-center">
-                <div className="text-xl font-bold text-white">${(detail.total_spent / 100).toFixed(2)}</div>
-                <div className="text-xs text-gray-400">Total Spent</div>
+              <div className="bg-slate-50 rounded-lg p-3 text-center">
+                <div className="text-xl font-bold text-slate-900">${(detail.total_spent / 100).toFixed(2)}</div>
+                <div className="text-xs text-slate-700">Total Spent</div>
               </div>
-              <div className="bg-surface rounded-lg p-3 text-center">
-                <div className="text-sm font-medium text-white">{detail.first_booking || "-"}</div>
-                <div className="text-xs text-gray-400">First Booking</div>
+              <div className="bg-slate-50 rounded-lg p-3 text-center">
+                <div className="text-sm font-medium text-slate-900">{detail.first_booking || "-"}</div>
+                <div className="text-xs text-slate-700">First Booking</div>
               </div>
             </div>
 
@@ -267,18 +267,18 @@ export default function CustomersPage() {
 
             {detail.bookings && detail.bookings.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-white mb-2">Booking History</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-2">Booking History</h3>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {detail.bookings.map((b) => (
-                    <div key={b.id} className="flex items-center justify-between bg-surface rounded-lg px-3 py-2 text-sm">
+                    <div key={b.id} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-sm">
                       <div>
-                        <span className="text-white">{b.product_name}</span>
-                        <span className="text-gray-400 ml-2">{b.date}</span>
+                        <span className="text-slate-900">{b.product_name}</span>
+                        <span className="text-slate-700 ml-2">{b.date}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-gray-300">${(b.amount / 100).toFixed(2)}</span>
+                        <span className="text-slate-900">${(b.amount / 100).toFixed(2)}</span>
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          b.status === "confirmed" ? "bg-success/20 text-success" :
+                          b.status === "confirmed" ? "bg-green-100 text-success" :
                           b.status === "cancelled" ? "bg-danger/20 text-danger" :
                           "bg-yellow-500/20 text-yellow-400"
                         }`}>{b.status}</span>
@@ -289,8 +289,8 @@ export default function CustomersPage() {
               </div>
             )}
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-              <button onClick={() => setDetailOpen(false)} className="px-4 py-2 text-sm bg-white/5 hover:bg-white/10 rounded-lg transition-colors">Cancel</button>
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+              <button onClick={() => setDetailOpen(false)} className="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
               <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-4 py-2 text-sm bg-brand hover:bg-brand-dark rounded-lg font-medium transition-colors disabled:opacity-50">
                 <Save className="w-4 h-4" /> {saving ? "Saving..." : "Save"}
               </button>

@@ -228,20 +228,20 @@ export default function BookingsPage() {
 
   const paymentStatusColor = (status: string) => {
     switch (status) {
-      case "paid": return "bg-success/20 text-success";
+      case "paid": return "bg-green-100 text-success";
       case "deposit_paid": return "bg-brand/20 text-brand-light";
       case "pending": return "bg-warning/20 text-warning";
       case "cancelled": return "bg-danger/20 text-danger";
-      default: return "bg-gray-500/20 text-gray-400";
+      default: return "bg-slate-200 text-slate-700";
     }
   };
 
   const bookingStatusColor = (status: string | undefined) => {
     switch (status) {
-      case "confirmed": return "bg-success/20 text-success";
+      case "confirmed": return "bg-green-100 text-success";
       case "cancelled": return "bg-danger/20 text-danger";
       case "no_show": return "bg-warning/20 text-warning";
-      default: return "bg-gray-500/20 text-gray-400";
+      default: return "bg-slate-200 text-slate-700";
     }
   };
 
@@ -249,27 +249,27 @@ export default function BookingsPage() {
     b.payment_status === "deposit_paid" || b.payment_status === "paid";
 
   const inputCls =
-    "px-3 py-2 bg-surface-light border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-brand";
+    "px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm focus:outline-none focus:border-brand";
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Bookings</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Bookings</h1>
         <button
           onClick={loadBookings}
-          className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors"
+          className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-100 rounded-lg text-sm transition-colors"
         >
           <RefreshCw className="w-4 h-4" /> Refresh
         </button>
       </div>
 
-      <div className="bg-surface-light rounded-xl border border-white/10 p-4 mb-6">
-        <div className="flex items-center gap-2 text-sm text-gray-400 mb-3">
+      <div className="bg-white rounded-xl border border-slate-200 p-4 mb-6">
+        <div className="flex items-center gap-2 text-sm text-slate-700 mb-3">
           <Filter className="w-4 h-4" /> Filters
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
           <div className="relative lg:col-span-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" />
             <input
               type="text"
               placeholder="Search name or email..."
@@ -328,44 +328,44 @@ export default function BookingsPage() {
           <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-surface-light rounded-xl border border-white/10 p-12 text-center">
-          <p className="text-gray-400">No bookings found.</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+          <p className="text-slate-700">No bookings found.</p>
         </div>
       ) : (
-        <div className="bg-surface-light rounded-xl border border-white/10 overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Date</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Time</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Product</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Customer</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Party</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Amount</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Deposit</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Payment</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Status</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Actions</th>
+                <tr className="border-b border-slate-200">
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Date</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Time</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Product</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Customer</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Party</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Amount</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Deposit</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Payment</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Status</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((b) => (
-                  <tr key={b.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 text-white whitespace-nowrap">{b.date}</td>
-                    <td className="px-4 py-3 text-gray-300 whitespace-nowrap">
+                  <tr key={b.id} className="border-b border-slate-100 hover:bg-white/[0.02]">
+                    <td className="px-4 py-3 text-slate-900 whitespace-nowrap">{b.date}</td>
+                    <td className="px-4 py-3 text-slate-900 whitespace-nowrap">
                       {b.start_time} - {b.end_time}
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{b.product_name}</td>
+                    <td className="px-4 py-3 text-slate-900">{b.product_name}</td>
                     <td className="px-4 py-3">
-                      <div className="text-white">{b.customer_name}</div>
-                      <div className="text-xs text-gray-400">{b.customer_email}</div>
+                      <div className="text-slate-900">{b.customer_name}</div>
+                      <div className="text-xs text-slate-700">{b.customer_email}</div>
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{b.party_size}</td>
-                    <td className="px-4 py-3 text-white font-medium">
+                    <td className="px-4 py-3 text-slate-900">{b.party_size}</td>
+                    <td className="px-4 py-3 text-slate-900 font-medium">
                       ${b.total_amount?.toFixed(2)}
                     </td>
-                    <td className="px-4 py-3 text-gray-300">
+                    <td className="px-4 py-3 text-slate-900">
                       ${b.deposit_amount?.toFixed(2)}
                     </td>
                     <td className="px-4 py-3">
@@ -385,24 +385,24 @@ export default function BookingsPage() {
                             setDetailBooking(b);
                             setStatusUpdate(b.payment_status);
                           }}
-                          className="p-1.5 hover:bg-white/5 rounded-lg transition-colors"
+                          className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
                           title="View details"
                         >
-                          <Eye className="w-4 h-4 text-gray-400" />
+                          <Eye className="w-4 h-4 text-slate-700" />
                         </button>
                         <button
                           onClick={() => handleCalSync(b)}
-                          className="p-1.5 hover:bg-white/5 rounded-lg transition-colors"
+                          className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
                           title="Sync to Calendar"
                         >
-                          <Calendar className="w-4 h-4 text-gray-400" />
+                          <Calendar className="w-4 h-4 text-slate-700" />
                         </button>
                         <button
                           onClick={() => handleResendEmail(b)}
-                          className="p-1.5 hover:bg-white/5 rounded-lg transition-colors"
+                          className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
                           title="Resend confirmation email"
                         >
-                          <Mail className="w-4 h-4 text-gray-400" />
+                          <Mail className="w-4 h-4 text-slate-700" />
                         </button>
                         {canRefund(b) && (
                           <button
@@ -420,7 +420,7 @@ export default function BookingsPage() {
                         {(b.status || "confirmed") !== "cancelled" && (
                           <button
                             onClick={() => handleCancel(b.id)}
-                            className="p-1.5 hover:bg-danger/10 rounded-lg transition-colors"
+                            className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
                             title="Cancel booking"
                           >
                             <Ban className="w-4 h-4 text-danger" />
@@ -446,41 +446,41 @@ export default function BookingsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <div className="text-gray-400">Customer</div>
-                <div className="text-white font-medium">{detailBooking.customer_name}</div>
+                <div className="text-slate-700">Customer</div>
+                <div className="text-slate-900 font-medium">{detailBooking.customer_name}</div>
               </div>
               <div>
-                <div className="text-gray-400">Email</div>
-                <div className="text-white">{detailBooking.customer_email}</div>
+                <div className="text-slate-700">Email</div>
+                <div className="text-slate-900">{detailBooking.customer_email}</div>
               </div>
               <div>
-                <div className="text-gray-400">Phone</div>
-                <div className="text-white">{detailBooking.customer_phone || "N/A"}</div>
+                <div className="text-slate-700">Phone</div>
+                <div className="text-slate-900">{detailBooking.customer_phone || "N/A"}</div>
               </div>
               <div>
-                <div className="text-gray-400">Party Size</div>
-                <div className="text-white">{detailBooking.party_size}</div>
+                <div className="text-slate-700">Party Size</div>
+                <div className="text-slate-900">{detailBooking.party_size}</div>
               </div>
               <div>
-                <div className="text-gray-400">Product</div>
-                <div className="text-white">{detailBooking.product_name}</div>
+                <div className="text-slate-700">Product</div>
+                <div className="text-slate-900">{detailBooking.product_name}</div>
               </div>
               <div>
-                <div className="text-gray-400">Date & Time</div>
-                <div className="text-white">
+                <div className="text-slate-700">Date & Time</div>
+                <div className="text-slate-900">
                   {detailBooking.date} {detailBooking.start_time}
                 </div>
               </div>
               <div>
-                <div className="text-gray-400">Total Amount</div>
-                <div className="text-white font-medium">${detailBooking.total_amount?.toFixed(2)}</div>
+                <div className="text-slate-700">Total Amount</div>
+                <div className="text-slate-900 font-medium">${detailBooking.total_amount?.toFixed(2)}</div>
               </div>
               <div>
-                <div className="text-gray-400">Deposit</div>
-                <div className="text-white">${detailBooking.deposit_amount?.toFixed(2)}</div>
+                <div className="text-slate-700">Deposit</div>
+                <div className="text-slate-900">${detailBooking.deposit_amount?.toFixed(2)}</div>
               </div>
               <div>
-                <div className="text-gray-400">Booking Status</div>
+                <div className="text-slate-700">Booking Status</div>
                 <div>
                   <span className={`text-xs px-2 py-1 rounded-full ${bookingStatusColor(detailBooking.status)}`}>
                     {detailBooking.status || "confirmed"}
@@ -489,21 +489,21 @@ export default function BookingsPage() {
               </div>
               {detailBooking.notes && (
                 <div className="col-span-2">
-                  <div className="text-gray-400">Notes</div>
-                  <div className="text-white">{detailBooking.notes}</div>
+                  <div className="text-slate-700">Notes</div>
+                  <div className="text-slate-900">{detailBooking.notes}</div>
                 </div>
               )}
             </div>
 
-            <div className="pt-4 border-t border-white/10">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+            <div className="pt-4 border-t border-slate-200">
+              <label className="block text-sm font-medium text-slate-900 mb-2">
                 Update Payment Status
               </label>
               <div className="flex gap-3">
                 <select
                   value={statusUpdate}
                   onChange={(e) => setStatusUpdate(e.target.value)}
-                  className="flex-1 px-3 py-2 bg-surface border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-brand"
+                  className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm focus:outline-none focus:border-brand"
                 >
                   <option value="pending">Pending</option>
                   <option value="deposit_paid">Deposit Paid</option>
@@ -520,10 +520,10 @@ export default function BookingsPage() {
               </div>
             </div>
 
-            <div className="flex gap-2 pt-4 border-t border-white/10">
+            <div className="flex gap-2 pt-4 border-t border-slate-200">
               <button
                 onClick={() => handleResendEmail(detailBooking)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors"
               >
                 <Mail className="w-3.5 h-3.5" /> Resend Email
               </button>
@@ -561,16 +561,16 @@ export default function BookingsPage() {
       >
         {refundBooking && (
           <div className="space-y-4">
-            <div className="bg-surface rounded-lg p-3 border border-white/5 text-sm">
-              <div className="text-gray-400">Booking #{refundBooking.id}</div>
-              <div className="text-white font-medium">{refundBooking.customer_name}</div>
-              <div className="text-gray-300 text-xs">
+            <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 text-sm">
+              <div className="text-slate-700">Booking #{refundBooking.id}</div>
+              <div className="text-slate-900 font-medium">{refundBooking.customer_name}</div>
+              <div className="text-slate-900 text-xs">
                 {refundBooking.product_name} - {refundBooking.date}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-900 mb-1">
                 Refund Amount ($)
               </label>
               <input
@@ -580,29 +580,29 @@ export default function BookingsPage() {
                 max={refundBooking.total_amount}
                 value={refundAmount}
                 onChange={(e) => setRefundAmount(e.target.value)}
-                className="w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-600 mt-1">
                 Deposit: ${refundBooking.deposit_amount?.toFixed(2)} | Total: ${refundBooking.total_amount?.toFixed(2)}
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-900 mb-1">
                 Reason
               </label>
               <textarea
                 value={refundReason}
                 onChange={(e) => setRefundReason(e.target.value)}
-                className="w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm h-20 resize-none"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm h-20 resize-none"
                 placeholder="Reason for refund..."
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
               <button
                 onClick={() => setRefundBooking(null)}
-                className="px-4 py-2 text-sm bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors"
               >
                 Cancel
               </button>

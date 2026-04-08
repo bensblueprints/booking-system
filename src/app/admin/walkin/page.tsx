@@ -183,27 +183,27 @@ export default function WalkinPage() {
   if (booking) {
     return (
       <div className="max-w-lg mx-auto space-y-6">
-        <div className="bg-surface-light border border-white/10 rounded-xl p-8 text-center" ref={receiptRef}>
+        <div className="bg-white border border-slate-200 rounded-xl p-8 text-center" ref={receiptRef}>
           <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Booking Confirmed!</h2>
           <div className="text-4xl font-mono font-bold text-brand mb-6">{booking.booking_ref}</div>
           <div className="space-y-2 text-sm text-left max-w-xs mx-auto">
-            <div className="flex justify-between"><span className="text-gray-400">Product:</span><span className="text-white">{booking.product_name}</span></div>
-            <div className="flex justify-between"><span className="text-gray-400">Time:</span><span className="text-white">{booking.slot_time}</span></div>
-            <div className="flex justify-between"><span className="text-gray-400">Customer:</span><span className="text-white">{booking.customer_name}</span></div>
-            <div className="flex justify-between"><span className="text-gray-400">Party Size:</span><span className="text-white">{booking.party_size}</span></div>
-            <div className="flex justify-between border-t border-white/10 pt-2 mt-2">
-              <span className="text-gray-400">Total:</span>
-              <span className="text-white font-bold text-lg">${booking.amount.toFixed(2)}</span>
+            <div className="flex justify-between"><span className="text-slate-700">Product:</span><span className="text-slate-900">{booking.product_name}</span></div>
+            <div className="flex justify-between"><span className="text-slate-700">Time:</span><span className="text-slate-900">{booking.slot_time}</span></div>
+            <div className="flex justify-between"><span className="text-slate-700">Customer:</span><span className="text-slate-900">{booking.customer_name}</span></div>
+            <div className="flex justify-between"><span className="text-slate-700">Party Size:</span><span className="text-slate-900">{booking.party_size}</span></div>
+            <div className="flex justify-between border-t border-slate-200 pt-2 mt-2">
+              <span className="text-slate-700">Total:</span>
+              <span className="text-slate-900 font-bold text-lg">${booking.amount.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between"><span className="text-gray-400">Payment:</span><span className="text-white capitalize">{booking.payment_method}</span></div>
+            <div className="flex justify-between"><span className="text-slate-700">Payment:</span><span className="text-slate-900 capitalize">{booking.payment_method}</span></div>
           </div>
         </div>
         <div className="flex gap-3">
-          <button onClick={handlePrint} className="flex-1 flex items-center justify-center gap-2 bg-surface-light border border-white/10 hover:bg-white/5 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors">
+          <button onClick={handlePrint} className="flex-1 flex items-center justify-center gap-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-900 px-4 py-3 rounded-lg text-sm font-medium transition-colors">
             <Printer className="w-4 h-4" /> Print Receipt
           </button>
-          <button onClick={reset} className="flex-1 flex items-center justify-center gap-2 bg-brand hover:bg-brand/80 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors">
+          <button onClick={reset} className="flex-1 flex items-center justify-center gap-2 bg-brand hover:bg-brand/80 text-slate-900 px-4 py-3 rounded-lg text-sm font-medium transition-colors">
             <ArrowLeft className="w-4 h-4" /> New Booking
           </button>
         </div>
@@ -219,7 +219,7 @@ export default function WalkinPage() {
 
       {/* Product Selection */}
       <div>
-        <label className="block text-sm text-gray-400 mb-2">Select Product</label>
+        <label className="block text-sm text-slate-700 mb-2">Select Product</label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {products.map((product) => (
             <button
@@ -227,11 +227,11 @@ export default function WalkinPage() {
               onClick={() => selectProduct(product)}
               className={`text-left p-4 rounded-xl border transition-colors ${
                 selectedProduct?.id === product.id
-                  ? "bg-brand/20 border-brand text-white"
-                  : "bg-surface-light border-white/10 text-gray-400 hover:border-white/20"
+                  ? "bg-brand/20 border-brand text-slate-900"
+                  : "bg-white border-slate-200 text-slate-700 hover:border-slate-300"
               }`}
             >
-              <div className="font-medium text-white">{product.name}</div>
+              <div className="font-medium text-slate-900">{product.name}</div>
               <div className="text-lg font-bold text-brand mt-1">${product.price.toFixed(2)}</div>
             </button>
           ))}
@@ -241,11 +241,11 @@ export default function WalkinPage() {
       {/* Slot Selection */}
       {selectedProduct && (
         <div>
-          <label className="block text-sm text-gray-400 mb-2">Available Slots — Today</label>
+          <label className="block text-sm text-slate-700 mb-2">Available Slots — Today</label>
           {loadingSlots ? (
-            <div className="text-gray-400 text-sm py-4">Loading slots...</div>
+            <div className="text-slate-700 text-sm py-4">Loading slots...</div>
           ) : slots.length === 0 ? (
-            <div className="text-gray-400 text-sm py-4">No available slots today</div>
+            <div className="text-slate-700 text-sm py-4">No available slots today</div>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
               {slots.map((slot) => (
@@ -255,7 +255,7 @@ export default function WalkinPage() {
                   className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                     selectedSlot?.id === slot.id
                       ? "bg-brand text-white border-brand"
-                      : "bg-surface border-white/10 text-gray-400 hover:border-white/20"
+                      : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
                   }`}
                 >
                   {slot.start_time}
@@ -269,32 +269,32 @@ export default function WalkinPage() {
 
       {/* Customer Details */}
       {selectedSlot && (
-        <div className="space-y-4 bg-surface-light border border-white/10 rounded-xl p-5">
+        <div className="space-y-4 bg-white border border-slate-200 rounded-xl p-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Customer Name *</label>
-              <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" placeholder="John Doe" />
+              <label className="block text-sm text-slate-700 mb-1">Customer Name *</label>
+              <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" placeholder="John Doe" />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Phone (optional)</label>
-              <input type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm" placeholder="(555) 123-4567" />
+              <label className="block text-sm text-slate-700 mb-1">Phone (optional)</label>
+              <input type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm" placeholder="(555) 123-4567" />
             </div>
           </div>
 
           {/* Party Size */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Party Size</label>
+            <label className="block text-sm text-slate-700 mb-1">Party Size</label>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setPartySize(Math.max(1, partySize - 1))}
-                className="w-10 h-10 flex items-center justify-center bg-surface border border-white/10 rounded-lg hover:bg-white/5 transition-colors"
+                className="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors"
               >
                 <Minus className="w-4 h-4" />
               </button>
               <span className="text-2xl font-bold w-12 text-center">{partySize}</span>
               <button
                 onClick={() => setPartySize(partySize + 1)}
-                className="w-10 h-10 flex items-center justify-center bg-surface border border-white/10 rounded-lg hover:bg-white/5 transition-colors"
+                className="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -303,7 +303,7 @@ export default function WalkinPage() {
 
           {/* Payment */}
           <div>
-            <label className="block text-sm text-gray-400 mb-2">Payment Method</label>
+            <label className="block text-sm text-slate-700 mb-2">Payment Method</label>
             <div className="flex gap-3">
               {[
                 { value: "cash", label: "Cash" },
@@ -316,7 +316,7 @@ export default function WalkinPage() {
                   className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
                     paymentMethod === opt.value
                       ? "bg-brand text-white border-brand"
-                      : "bg-surface border-white/10 text-gray-400 hover:border-white/20"
+                      : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
                   }`}
                 >
                   {opt.label}
@@ -327,15 +327,15 @@ export default function WalkinPage() {
 
           {/* Amount */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Amount</label>
+            <label className="block text-sm text-slate-700 mb-1">Amount</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-700">$</span>
               <input
                 type="number"
                 step="0.01"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full pl-7 pr-4 py-2 bg-surface border border-white/10 rounded-lg text-sm"
+                className="w-full pl-7 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm"
               />
             </div>
           </div>
@@ -344,7 +344,7 @@ export default function WalkinPage() {
           <button
             onClick={handleSubmit}
             disabled={submitting || !customerName}
-            className="w-full py-4 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white rounded-xl text-lg font-bold transition-colors"
+            className="w-full py-4 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-slate-900 rounded-xl text-lg font-bold transition-colors"
           >
             {submitting ? "Processing..." : "Complete Booking"}
           </button>

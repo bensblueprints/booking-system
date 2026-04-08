@@ -172,8 +172,8 @@ export default function PromoCodesPage() {
   };
 
   const inputCls =
-    "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
-  const labelCls = "block text-sm font-medium text-gray-300 mb-1";
+    "w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
+  const labelCls = "block text-sm font-medium text-slate-900 mb-1";
 
   if (loading) {
     return (
@@ -186,7 +186,7 @@ export default function PromoCodesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
           <Tag className="w-6 h-6 text-brand-light" />
           Promo Codes
         </h1>
@@ -200,51 +200,51 @@ export default function PromoCodesPage() {
       </div>
 
       {promoCodes.length === 0 ? (
-        <div className="bg-surface-light rounded-xl border border-white/10 p-12 text-center">
+        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
           <Tag className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-400">No promo codes yet. Create your first one to get started.</p>
+          <p className="text-slate-700">No promo codes yet. Create your first one to get started.</p>
         </div>
       ) : (
-        <div className="bg-surface-light rounded-xl border border-white/10 overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Code</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Type</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Value</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Min Order</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Uses</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Product</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Date Range</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Status</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase">Actions</th>
+                <tr className="border-b border-slate-200">
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Code</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Type</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Value</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Min Order</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Uses</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Product</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Date Range</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Status</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-700 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {promoCodes.map((p) => (
-                  <tr key={p.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                  <tr key={p.id} className="border-b border-slate-100 hover:bg-white/[0.02]">
                     <td className="px-4 py-3">
-                      <span className="font-mono font-semibold text-white bg-surface px-2 py-0.5 rounded">
+                      <span className="font-mono font-semibold text-slate-900 bg-slate-50 px-2 py-0.5 rounded">
                         {p.code}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300">
+                    <td className="px-4 py-3 text-slate-900">
                       {p.discount_type === "percent" ? "%" : "$"}
                     </td>
-                    <td className="px-4 py-3 text-white font-medium">
+                    <td className="px-4 py-3 text-slate-900 font-medium">
                       {p.discount_type === "percent" ? `${p.discount_value}%` : `$${p.discount_value}`}
                     </td>
-                    <td className="px-4 py-3 text-gray-300">
+                    <td className="px-4 py-3 text-slate-900">
                       {p.min_order ? `$${p.min_order}` : "-"}
                     </td>
-                    <td className="px-4 py-3 text-gray-300">
+                    <td className="px-4 py-3 text-slate-900">
                       {p.used_count || 0}/{p.max_uses != null ? p.max_uses : "\u221E"}
                     </td>
-                    <td className="px-4 py-3 text-gray-300">
+                    <td className="px-4 py-3 text-slate-900">
                       {p.product_name || "All"}
                     </td>
-                    <td className="px-4 py-3 text-gray-300 text-xs">
+                    <td className="px-4 py-3 text-slate-900 text-xs">
                       {p.start_date || p.end_date
                         ? `${p.start_date || "..."} - ${p.end_date || "..."}`
                         : "-"}
@@ -253,8 +253,8 @@ export default function PromoCodesPage() {
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full ${
                           p.active
-                            ? "bg-success/20 text-success"
-                            : "bg-gray-500/20 text-gray-400"
+                            ? "bg-green-100 text-success"
+                            : "bg-slate-200 text-slate-700"
                         }`}
                       >
                         {p.active ? "Active" : "Inactive"}
@@ -264,25 +264,25 @@ export default function PromoCodesPage() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => openEdit(p)}
-                          className="p-1.5 hover:bg-white/5 rounded-lg transition-colors"
+                          className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
                           title="Edit"
                         >
-                          <Pencil className="w-4 h-4 text-gray-400" />
+                          <Pencil className="w-4 h-4 text-slate-700" />
                         </button>
                         <button
                           onClick={() => handleToggle(p)}
-                          className="p-1.5 hover:bg-white/5 rounded-lg transition-colors"
+                          className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
                           title={p.active ? "Deactivate" : "Activate"}
                         >
                           {p.active ? (
                             <ToggleRight className="w-4 h-4 text-success" />
                           ) : (
-                            <ToggleLeft className="w-4 h-4 text-gray-400" />
+                            <ToggleLeft className="w-4 h-4 text-slate-700" />
                           )}
                         </button>
                         <button
                           onClick={() => handleDelete(p.id)}
-                          className="p-1.5 hover:bg-danger/10 rounded-lg transition-colors"
+                          className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4 text-danger" />
@@ -319,7 +319,7 @@ export default function PromoCodesPage() {
                 <button
                   type="button"
                   onClick={generateCode}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors shrink-0"
+                  className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-100 rounded-lg text-sm transition-colors shrink-0"
                 >
                   <Shuffle className="w-4 h-4" />
                   Generate
@@ -409,18 +409,18 @@ export default function PromoCodesPage() {
                   type="checkbox"
                   checked={form.active}
                   onChange={(e) => setForm({ ...form, active: e.target.checked })}
-                  className="w-4 h-4 rounded border-white/20 accent-brand"
+                  className="w-4 h-4 rounded border-slate-300 accent-brand"
                 />
-                <span className="text-sm text-gray-300">Active</span>
+                <span className="text-sm text-slate-900">Active</span>
               </label>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 text-sm bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors"
             >
               Cancel
             </button>

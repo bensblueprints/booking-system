@@ -191,8 +191,8 @@ export default function SettingsPage() {
   })();
 
   const inputCls =
-    "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
-  const labelCls = "block text-sm font-medium text-gray-300 mb-1";
+    "w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
+  const labelCls = "block text-sm font-medium text-slate-900 mb-1";
 
   if (loading) {
     return (
@@ -204,7 +204,7 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-6">Settings</h1>
+      <h1 className="text-2xl font-bold text-slate-900 mb-6">Settings</h1>
 
       <div className="space-y-6 max-w-2xl">
         <Section
@@ -287,7 +287,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => setShowStripeSecret(!showStripeSecret)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700 hover:text-brand"
                 >
                   {showStripeSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -329,7 +329,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => setShowAuthNetKey(!showAuthNetKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700 hover:text-brand"
                 >
                   {showAuthNetKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -345,7 +345,7 @@ export default function SettingsPage() {
           onSave={() => saveSection(["payment_provider"], setSavingProvider)}
         >
           <div className="space-y-3">
-            <label className="flex items-center gap-3 p-3 bg-surface rounded-lg border border-white/10 cursor-pointer">
+            <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer">
               <input
                 type="radio"
                 name="provider"
@@ -355,11 +355,11 @@ export default function SettingsPage() {
                 className="accent-brand"
               />
               <div>
-                <div className="text-sm font-medium text-white">Stripe</div>
-                <div className="text-xs text-gray-400">Credit cards, Apple Pay, Google Pay</div>
+                <div className="text-sm font-medium text-slate-900">Stripe</div>
+                <div className="text-xs text-slate-700">Credit cards, Apple Pay, Google Pay</div>
               </div>
             </label>
-            <label className="flex items-center gap-3 p-3 bg-surface rounded-lg border border-white/10 cursor-pointer">
+            <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer">
               <input
                 type="radio"
                 name="provider"
@@ -369,8 +369,8 @@ export default function SettingsPage() {
                 className="accent-brand"
               />
               <div>
-                <div className="text-sm font-medium text-white">Authorize.net</div>
-                <div className="text-xs text-gray-400">Credit and debit cards</div>
+                <div className="text-sm font-medium text-slate-900">Authorize.net</div>
+                <div className="text-xs text-slate-700">Credit and debit cards</div>
               </div>
             </label>
           </div>
@@ -476,7 +476,7 @@ export default function SettingsPage() {
                     <button
                       type="button"
                       onClick={() => setShowSmtpPass(!showSmtpPass)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700 hover:text-brand"
                     >
                       {showSmtpPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -499,7 +499,7 @@ export default function SettingsPage() {
                   <button
                     type="button"
                     onClick={() => setShowApiKey(!showApiKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700 hover:text-brand"
                   >
                     {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -521,7 +521,7 @@ export default function SettingsPage() {
                   <button
                     type="button"
                     onClick={() => setShowApiKey(!showApiKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700 hover:text-brand"
                   >
                     {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -550,8 +550,8 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="pt-3 border-t border-white/10">
-              <div className="text-sm font-medium text-gray-300 mb-2">Test Email Connection</div>
+            <div className="pt-3 border-t border-slate-200">
+              <div className="text-sm font-medium text-slate-900 mb-2">Test Email Connection</div>
               <div className="flex gap-2">
                 <input
                   type="email"
@@ -563,7 +563,7 @@ export default function SettingsPage() {
                 <button
                   onClick={handleTestEmailConnection}
                   disabled={testingEmail || !testEmailAddr}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors disabled:opacity-50 shrink-0"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-100 rounded-lg text-sm transition-colors disabled:opacity-50 shrink-0"
                 >
                   <Send className="w-4 h-4" />
                   {testingEmail ? "Sending..." : "Test"}
@@ -586,11 +586,11 @@ export default function SettingsPage() {
                 type="checkbox"
                 checked={settings.reminder_enabled === "1" || settings.reminder_enabled === "true"}
                 onChange={(e) => update("reminder_enabled", e.target.checked ? "1" : "0")}
-                className="w-4 h-4 rounded border-white/20 accent-brand"
+                className="w-4 h-4 rounded border-slate-300 accent-brand"
               />
               <div>
-                <span className="text-sm text-gray-300">Enable booking reminders</span>
-                <div className="text-xs text-gray-500">Send automated reminder emails before bookings</div>
+                <span className="text-sm text-slate-900">Enable booking reminders</span>
+                <div className="text-xs text-slate-600">Send automated reminder emails before bookings</div>
               </div>
             </label>
             <div>
@@ -603,7 +603,7 @@ export default function SettingsPage() {
                 className={inputCls}
                 placeholder="24"
               />
-              <p className="text-xs text-gray-500 mt-1">How many hours before the booking to send the reminder</p>
+              <p className="text-xs text-slate-600 mt-1">How many hours before the booking to send the reminder</p>
             </div>
           </div>
         </Section>
@@ -643,7 +643,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => setShowTwilioToken(!showTwilioToken)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700 hover:text-brand"
                 >
                   {showTwilioToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -664,11 +664,11 @@ export default function SettingsPage() {
                 type="checkbox"
                 checked={settings.sms_confirmation_enabled === "1" || settings.sms_confirmation_enabled === "true"}
                 onChange={(e) => update("sms_confirmation_enabled", e.target.checked ? "1" : "0")}
-                className="w-4 h-4 rounded border-white/20 accent-brand"
+                className="w-4 h-4 rounded border-slate-300 accent-brand"
               />
               <div>
-                <span className="text-sm text-gray-300">SMS booking confirmations</span>
-                <div className="text-xs text-gray-500">Send SMS when a booking is confirmed</div>
+                <span className="text-sm text-slate-900">SMS booking confirmations</span>
+                <div className="text-xs text-slate-600">Send SMS when a booking is confirmed</div>
               </div>
             </label>
             <label className="flex items-center gap-3 cursor-pointer">
@@ -676,15 +676,15 @@ export default function SettingsPage() {
                 type="checkbox"
                 checked={settings.sms_reminder_enabled === "1" || settings.sms_reminder_enabled === "true"}
                 onChange={(e) => update("sms_reminder_enabled", e.target.checked ? "1" : "0")}
-                className="w-4 h-4 rounded border-white/20 accent-brand"
+                className="w-4 h-4 rounded border-slate-300 accent-brand"
               />
               <div>
-                <span className="text-sm text-gray-300">SMS booking reminders</span>
-                <div className="text-xs text-gray-500">Send SMS reminders before bookings</div>
+                <span className="text-sm text-slate-900">SMS booking reminders</span>
+                <div className="text-xs text-slate-600">Send SMS reminders before bookings</div>
               </div>
             </label>
-            <div className="pt-3 border-t border-white/10">
-              <div className="text-sm font-medium text-gray-300 mb-2">Test SMS</div>
+            <div className="pt-3 border-t border-slate-200">
+              <div className="text-sm font-medium text-slate-900 mb-2">Test SMS</div>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -696,7 +696,7 @@ export default function SettingsPage() {
                 <button
                   onClick={handleTestSms}
                   disabled={testingSms || !testSmsPhone}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors disabled:opacity-50 shrink-0"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-100 rounded-lg text-sm transition-colors disabled:opacity-50 shrink-0"
                 >
                   <Send className="w-4 h-4" />
                   {testingSms ? "Sending..." : "Test"}
@@ -724,11 +724,11 @@ export default function SettingsPage() {
                 type="checkbox"
                 checked={settings.review_request_enabled === "1" || settings.review_request_enabled === "true"}
                 onChange={(e) => update("review_request_enabled", e.target.checked ? "1" : "0")}
-                className="w-4 h-4 rounded border-white/20 accent-brand"
+                className="w-4 h-4 rounded border-slate-300 accent-brand"
               />
               <div>
-                <span className="text-sm text-gray-300">Send review request emails after tours</span>
-                <div className="text-xs text-gray-500">Automatically ask customers to leave a review</div>
+                <span className="text-sm text-slate-900">Send review request emails after tours</span>
+                <div className="text-xs text-slate-600">Automatically ask customers to leave a review</div>
               </div>
             </label>
             <div>
@@ -741,17 +741,17 @@ export default function SettingsPage() {
                 className={inputCls}
                 placeholder="24"
               />
-              <p className="text-xs text-gray-500 mt-1">How many hours after the slot ends to send the review request</p>
+              <p className="text-xs text-slate-600 mt-1">How many hours after the slot ends to send the review request</p>
             </div>
           </div>
         </Section>
 
-        <div className="bg-surface-light rounded-xl border border-white/10">
-          <div className="px-6 py-4 border-b border-white/10 flex items-center gap-3">
+        <div className="bg-white rounded-xl border border-slate-200">
+          <div className="px-6 py-4 border-b border-slate-200 flex items-center gap-3">
             <div className="w-8 h-8 bg-brand/20 rounded-lg flex items-center justify-center text-brand-light">
               <Lock className="w-5 h-5" />
             </div>
-            <h2 className="text-base font-semibold text-white">Change Password</h2>
+            <h2 className="text-base font-semibold text-slate-900">Change Password</h2>
           </div>
           <form onSubmit={handleChangePassword} className="p-6 space-y-4">
             <div>
@@ -816,12 +816,12 @@ function Section({
   onSave: () => void;
 }) {
   return (
-    <div className="bg-surface-light rounded-xl border border-white/10">
-      <div className="px-6 py-4 border-b border-white/10 flex items-center gap-3">
+    <div className="bg-white rounded-xl border border-slate-200">
+      <div className="px-6 py-4 border-b border-slate-200 flex items-center gap-3">
         <div className="w-8 h-8 bg-brand/20 rounded-lg flex items-center justify-center text-brand-light">
           {icon}
         </div>
-        <h2 className="text-base font-semibold text-white">{title}</h2>
+        <h2 className="text-base font-semibold text-slate-900">{title}</h2>
       </div>
       <div className="p-6">
         {children}

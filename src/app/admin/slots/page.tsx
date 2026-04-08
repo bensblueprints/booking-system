@@ -341,8 +341,8 @@ export default function SlotsPage() {
   const monthName = new Date(year, month).toLocaleString("default", { month: "long" });
 
   const inputCls =
-    "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
-  const labelCls = "block text-sm font-medium text-gray-300 mb-1";
+    "w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
+  const labelCls = "block text-sm font-medium text-slate-900 mb-1";
 
   const selectedSlots = selectedDate ? slotsForDate(selectedDate) : [];
 
@@ -359,7 +359,7 @@ export default function SlotsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-white">Slots & Calendar</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Slots & Calendar</h1>
         <button
           onClick={() => setBulkOpen(true)}
           className="flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-dark rounded-lg text-sm font-medium transition-colors"
@@ -371,20 +371,20 @@ export default function SlotsPage() {
 
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <div className="flex items-center gap-2">
-          <button onClick={prevMonth} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
+          <button onClick={prevMonth} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <span className="text-lg font-semibold text-white min-w-36 text-center">
+          <span className="text-lg font-semibold text-slate-900 min-w-36 text-center">
             {monthName} {year}
           </span>
-          <button onClick={nextMonth} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
+          <button onClick={nextMonth} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
         <select
           value={filterProduct}
           onChange={(e) => setFilterProduct(e.target.value)}
-          className="px-3 py-2 bg-surface-light border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
+          className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-brand"
         >
           <option value="">All Products</option>
           {products.map((p) => (
@@ -399,10 +399,10 @@ export default function SlotsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          <div className="xl:col-span-2 bg-surface-light rounded-xl border border-white/10 p-4">
+          <div className="xl:col-span-2 bg-white rounded-xl border border-slate-200 p-4">
             <div className="grid grid-cols-7 gap-px">
               {DAY_LABELS.map((d) => (
-                <div key={d} className="text-center text-xs font-medium text-gray-400 py-2">
+                <div key={d} className="text-center text-xs font-medium text-slate-700 py-2">
                   {d}
                 </div>
               ))}
@@ -423,13 +423,13 @@ export default function SlotsPage() {
                       isSelected
                         ? "bg-brand/20 border border-brand"
                         : isToday
-                        ? "bg-white/5 border border-white/10"
-                        : "hover:bg-white/5 border border-transparent"
+                        ? "bg-slate-100 border border-slate-200"
+                        : "hover:bg-slate-100 border border-transparent"
                     }`}
                   >
                     <span
                       className={`text-xs font-medium ${
-                        isToday ? "text-brand-light" : "text-gray-300"
+                        isToday ? "text-brand-light" : "text-slate-900"
                       }`}
                     >
                       {day}
@@ -444,7 +444,7 @@ export default function SlotsPage() {
                         />
                       ))}
                       {daySlots.length > 4 && (
-                        <span className="text-[10px] text-gray-400">+{daySlots.length - 4}</span>
+                        <span className="text-[10px] text-slate-700">+{daySlots.length - 4}</span>
                       )}
                     </div>
                   </button>
@@ -454,9 +454,9 @@ export default function SlotsPage() {
           </div>
 
           {/* Day detail sidebar */}
-          <div className="bg-surface-light rounded-xl border border-white/10 p-5">
+          <div className="bg-white rounded-xl border border-slate-200 p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-brand-light" />
                 {selectedDate || "Select a day"}
               </h2>
@@ -471,7 +471,7 @@ export default function SlotsPage() {
             </div>
 
             {selectedDate && selectedSlots.length === 0 && (
-              <p className="text-sm text-gray-400">No slots for this day.</p>
+              <p className="text-sm text-slate-700">No slots for this day.</p>
             )}
             <div className="space-y-3">
               {selectedSlots.map((slot) => {
@@ -479,7 +479,7 @@ export default function SlotsPage() {
                 return (
                   <div
                     key={slot.id}
-                    className="bg-surface rounded-lg p-3 border border-white/5"
+                    className="bg-slate-50 rounded-lg p-3 border border-slate-100"
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
@@ -487,19 +487,19 @@ export default function SlotsPage() {
                           className="w-2 h-6 rounded-full"
                           style={{ backgroundColor: slot.product_color || "#1B6B8A" }}
                         />
-                        <span className="text-sm font-medium text-white">{slot.product_name}</span>
+                        <span className="text-sm font-medium text-slate-900">{slot.product_name}</span>
                       </div>
                       {slot.booked_seats === 0 && (
                         <button
                           onClick={() => handleDeleteSlot(slot.id)}
-                          className="p-1 text-gray-400 hover:text-danger transition-colors"
+                          className="p-1 text-slate-700 hover:text-danger transition-colors"
                           title="Delete slot"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       )}
                     </div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-slate-700">
                       {slot.start_time} - {slot.end_time}
                     </div>
                     <div className="text-xs mt-1">
@@ -509,15 +509,15 @@ export default function SlotsPage() {
                     </div>
 
                     {/* Resources section */}
-                    <div className="mt-2 pt-2 border-t border-white/5">
+                    <div className="mt-2 pt-2 border-t border-slate-100">
                       <div className="flex items-center gap-1 mb-1.5">
-                        <Truck className="w-3 h-3 text-gray-500" />
-                        <span className="text-xs text-gray-500 font-medium">Resources</span>
+                        <Truck className="w-3 h-3 text-slate-600" />
+                        <span className="text-xs text-slate-600 font-medium">Resources</span>
                       </div>
                       {sr.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-2">
                           {sr.map((r) => (
-                            <span key={r.id} className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${resourceTypeColors[r.resource_type] || "bg-gray-500/20 text-gray-400"}`}>
+                            <span key={r.id} className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${resourceTypeColors[r.resource_type] || "bg-slate-200 text-slate-700"}`}>
                               {r.resource_name}
                               <button onClick={() => removeResource(slot.id, r.resource_id)} className="hover:text-danger ml-0.5" title="Remove">
                                 <X className="w-3 h-3" />
@@ -530,7 +530,7 @@ export default function SlotsPage() {
                         <select
                           value={assignResourceId}
                           onChange={(e) => setAssignResourceId(e.target.value)}
-                          className="flex-1 px-2 py-1 bg-surface border border-white/10 rounded text-white text-xs focus:outline-none focus:border-brand"
+                          className="flex-1 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-slate-900 text-xs focus:outline-none focus:border-brand"
                         >
                           <option value="">Assign resource...</option>
                           {resources
@@ -555,8 +555,8 @@ export default function SlotsPage() {
 
             {/* Quick add form (inline) */}
             {quickAddOpen && selectedDate && (
-              <form onSubmit={handleQuickAdd} className="mt-4 pt-4 border-t border-white/10 space-y-3">
-                <div className="text-xs font-medium text-gray-300 mb-2">Add slot for {selectedDate}</div>
+              <form onSubmit={handleQuickAdd} className="mt-4 pt-4 border-t border-slate-200 space-y-3">
+                <div className="text-xs font-medium text-slate-900 mb-2">Add slot for {selectedDate}</div>
                 <select
                   value={quickForm.product_id}
                   onChange={(e) => setQuickForm({ ...quickForm, product_id: e.target.value })}
@@ -595,7 +595,7 @@ export default function SlotsPage() {
                   <button
                     type="button"
                     onClick={() => setQuickAddOpen(false)}
-                    className="px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                    className="px-3 py-1.5 text-xs bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
@@ -658,7 +658,7 @@ export default function SlotsPage() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     bulkForm.days.includes(idx)
                       ? "bg-brand text-white"
-                      : "bg-surface border border-white/10 text-gray-400"
+                      : "bg-slate-50 border border-slate-200 text-slate-700"
                   }`}
                 >
                   {label}
@@ -679,13 +679,13 @@ export default function SlotsPage() {
                 <Plus className="w-3 h-3" /> Add Time
               </button>
             </div>
-            <p className="text-xs text-gray-500 mb-3">
+            <p className="text-xs text-slate-600 mb-3">
               Add multiple time slots if this product runs at different times each day (e.g., morning and afternoon).
             </p>
             <div className="space-y-2">
               {timeSlots.map((ts, idx) => (
                 <div key={ts.id} className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500 w-6 shrink-0">#{idx + 1}</span>
+                  <span className="text-xs text-slate-600 w-6 shrink-0">#{idx + 1}</span>
                   <input
                     type="time"
                     value={ts.start_time}
@@ -693,7 +693,7 @@ export default function SlotsPage() {
                     className={inputCls}
                     required
                   />
-                  <span className="text-gray-500 text-sm shrink-0">to</span>
+                  <span className="text-slate-600 text-sm shrink-0">to</span>
                   <input
                     type="time"
                     value={ts.end_time}
@@ -705,7 +705,7 @@ export default function SlotsPage() {
                     <button
                       type="button"
                       onClick={() => removeTimeSlot(ts.id)}
-                      className="p-1.5 text-gray-400 hover:text-danger hover:bg-white/5 rounded-lg transition-colors shrink-0"
+                      className="p-1.5 text-slate-700 hover:text-danger hover:bg-slate-100 rounded-lg transition-colors shrink-0"
                       title="Remove this time slot"
                     >
                       <X className="w-4 h-4" />
@@ -718,19 +718,19 @@ export default function SlotsPage() {
 
           {/* Summary */}
           {bulkForm.date_from && bulkForm.date_to && bulkForm.days.length > 0 && (
-            <div className="bg-surface rounded-lg border border-white/5 p-3">
-              <p className="text-xs text-gray-400">
-                This will create <strong className="text-white">{timeSlots.length} slot{timeSlots.length > 1 ? "s" : ""} per day</strong> on
+            <div className="bg-slate-50 rounded-lg border border-slate-100 p-3">
+              <p className="text-xs text-slate-700">
+                This will create <strong className="text-slate-900">{timeSlots.length} slot{timeSlots.length > 1 ? "s" : ""} per day</strong> on
                 {" "}{bulkForm.days.map((d) => DAY_LABELS[d]).join(", ")} from {bulkForm.date_from} to {bulkForm.date_to}.
               </p>
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
             <button
               type="button"
               onClick={() => setBulkOpen(false)}
-              className="px-4 py-2 text-sm bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-100 rounded-lg transition-colors"
             >
               Cancel
             </button>

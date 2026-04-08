@@ -103,13 +103,13 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
       <div className="px-5 py-6 border-b border-slate-200">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-brand rounded-lg flex items-center justify-center">
-            <Anchor className="w-5 h-5 text-white" />
+            <Anchor className="w-5 h-5 text-slate-900" />
           </div>
           <div>
             <div className="font-semibold text-sm leading-tight">
               {businessName || "Booking Admin"}
             </div>
-            <div className="text-xs text-gray-400">Management</div>
+            <div className="text-xs text-slate-700">Management</div>
           </div>
         </div>
       </div>
@@ -132,7 +132,7 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       active
                         ? "bg-brand text-slate-50"
-                        : "text-gray-300 hover:text-white hover:bg-slate-100"
+                        : "text-slate-900 hover:text-brand hover:bg-slate-100"
                     }`}
                   >
                     <Icon className="w-5 h-5 shrink-0" />
@@ -150,7 +150,7 @@ export default function AdminSidebar({ businessName, onLogout }: AdminSidebarPro
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
               isActive("/admin/settings")
                 ? "bg-brand text-slate-50"
-                : "text-gray-300 hover:text-white hover:bg-slate-100"
+                : "text-slate-900 hover:text-brand hover:bg-slate-100"
             }`}
           >
             <Settings className="w-5 h-5 shrink-0" />
