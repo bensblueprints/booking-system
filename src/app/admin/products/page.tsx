@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { useToast } from "@/components/Toast";
 import Modal from "@/components/Modal";
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Code, Copy, Check, Link as LinkIcon } from "lucide-react";
 
 interface Product {
   id: number;
@@ -33,14 +33,35 @@ const defaultForm = {
   active: true,
 };
 
+function CopyButton({ text, label }: { text: string; label?: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-brand/20 hover:bg-brand/30 text-brand-light rounded-lg transition-colors"
+    >
+      {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+      {copied ? "Copied!" : label || "Copy"}
+    </button>
+  );
+}
+
 export default function ProductsPage() {
   const { addToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [embedModalOpen, setEmbedModalOpen] = useState(false);
+  const [embedProduct, setEmbedProduct] = useState<Product | null>(null);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState(defaultForm);
   const [saving, setSaving] = useState(false);
+
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
   useEffect(() => {
     loadProducts();
@@ -79,6 +100,11 @@ export default function ProductsPage() {
       active: !!p.active,
     });
     setModalOpen(true);
+  };
+
+  const openEmbed = (p: Product) => {
+    setEmbedProduct(p);
+    setEmbedModalOpen(true);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -147,9 +173,60 @@ export default function ProductsPage() {
     }
   };
 
+  const getDirectLink = (p: Product) => `${baseUrl}/book?product=${p.id}`;
+  const getAllBookingLink = () => `${baseUrl}/book`;
+
+  const getButtonSnippet = (p: Product) =>
+    `<a href="${getDirectLink(p)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:${p.color || "#1B6B8A"};color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-weight:600;font-size:16px;">Book ${p.name}</a>`;
+
+  const getJsButtonSnippet = (p: Product) =>
+    `<!-- Booking Button for ${p.name} -->
+<script>
+(function(){
+  var btn = document.createElement('a');
+  btn.href = '${getDirectLink(p)}';
+  btn.target = '_blank';
+  btn.rel = 'noopener noreferrer';
+  btn.innerHTML = 'Book ${p.name.replace(/'/g, "\\'")}';
+  btn.style.cssText = 'display:inline-block;background:${p.color || "#1B6B8A"};color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-weight:600;font-size:16px;cursor:pointer;transition:opacity 0.2s;';
+  btn.onmouseover = function(){ this.style.opacity='0.85'; };
+  btn.onmouseout = function(){ this.style.opacity='1'; };
+  document.currentScript.parentElement.appendChild(btn);
+})();
+</script>`;
+
+  const getIframeSnippet = (p: Product) =>
+    `<iframe src="${getDirectLink(p)}" width="100%" height="800" frameborder="0" style="border:none;border-radius:12px;max-width:600px;"></iframe>`;
+
+  const getPopupSnippet = (p: Product) =>
+    `<!-- Popup Booking Button for ${p.name} -->
+<script>
+(function(){
+  var btn = document.createElement('a');
+  btn.innerHTML = 'Book ${p.name.replace(/'/g, "\\'")}';
+  btn.style.cssText = 'display:inline-block;background:${p.color || "#1B6B8A"};color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-weight:600;font-size:16px;cursor:pointer;transition:opacity 0.2s;';
+  btn.onmouseover = function(){ this.style.opacity='0.85'; };
+  btn.onmouseout = function(){ this.style.opacity='1'; };
+  btn.onclick = function(e){
+    e.preventDefault();
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;';
+    overlay.onclick = function(ev){ if(ev.target===overlay){ document.body.removeChild(overlay); } };
+    var frame = document.createElement('iframe');
+    frame.src = '${getDirectLink(p)}';
+    frame.style.cssText = 'width:90%;max-width:560px;height:85vh;border:none;border-radius:16px;background:#fff;';
+    overlay.appendChild(frame);
+    document.body.appendChild(overlay);
+  };
+  document.currentScript.parentElement.appendChild(btn);
+})();
+</script>`;
+
   const inputCls =
     "w-full px-3 py-2 bg-surface border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand text-sm";
   const labelCls = "block text-sm font-medium text-gray-300 mb-1";
+  const codeCls =
+    "w-full bg-surface border border-white/10 rounded-lg p-3 text-xs text-gray-300 font-mono whitespace-pre-wrap break-all select-all max-h-32 overflow-auto";
 
   if (loading) {
     return (
@@ -171,6 +248,20 @@ export default function ProductsPage() {
           Add Product
         </button>
       </div>
+
+      {/* Quick links bar */}
+      {products.length > 0 && (
+        <div className="bg-surface-light rounded-xl border border-white/10 p-4 mb-6">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <LinkIcon className="w-4 h-4" />
+              <span>All Products Booking Page:</span>
+              <code className="bg-surface px-2 py-0.5 rounded text-xs text-brand-light">{getAllBookingLink()}</code>
+            </div>
+            <CopyButton text={getAllBookingLink()} label="Copy Link" />
+          </div>
+        </div>
+      )}
 
       {products.length === 0 ? (
         <div className="bg-surface-light rounded-xl border border-white/10 p-12 text-center">
@@ -228,12 +319,18 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-3 border-t border-white/10">
+              <div className="flex items-center gap-2 pt-3 border-t border-white/10 flex-wrap">
                 <button
                   onClick={() => openEdit(p)}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
                 >
                   <Pencil className="w-3.5 h-3.5" /> Edit
+                </button>
+                <button
+                  onClick={() => openEmbed(p)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-brand/20 hover:bg-brand/30 text-brand-light rounded-lg transition-colors"
+                >
+                  <Code className="w-3.5 h-3.5" /> Embed
                 </button>
                 <button
                   onClick={() => handleToggle(p)}
@@ -257,6 +354,75 @@ export default function ProductsPage() {
         </div>
       )}
 
+      {/* Embed/Link Modal */}
+      <Modal
+        open={embedModalOpen}
+        onClose={() => setEmbedModalOpen(false)}
+        title={embedProduct ? `Embed: ${embedProduct.name}` : "Embed Code"}
+        wide
+      >
+        {embedProduct && (
+          <div className="space-y-6">
+            {/* Direct Link */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                  <LinkIcon className="w-4 h-4" /> Direct Link
+                </label>
+                <CopyButton text={getDirectLink(embedProduct)} />
+              </div>
+              <div className={codeCls}>{getDirectLink(embedProduct)}</div>
+              <p className="text-xs text-gray-500 mt-1">Link directly to the booking page for this product.</p>
+            </div>
+
+            {/* HTML Button */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-300">HTML Button</label>
+                <CopyButton text={getButtonSnippet(embedProduct)} />
+              </div>
+              <div className={codeCls}>{getButtonSnippet(embedProduct)}</div>
+              <p className="text-xs text-gray-500 mt-1">Simple HTML link styled as a button. Paste anywhere in your HTML.</p>
+              <div className="mt-2 p-3 bg-surface rounded-lg border border-white/10">
+                <span className="text-xs text-gray-400 block mb-2">Preview:</span>
+                <div dangerouslySetInnerHTML={{ __html: getButtonSnippet(embedProduct) }} />
+              </div>
+            </div>
+
+            {/* JavaScript Button */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-300">JavaScript Button (auto-inject)</label>
+                <CopyButton text={getJsButtonSnippet(embedProduct)} />
+              </div>
+              <div className={codeCls}>{getJsButtonSnippet(embedProduct)}</div>
+              <p className="text-xs text-gray-500 mt-1">Paste this script tag anywhere — it auto-creates a styled booking button.</p>
+            </div>
+
+            {/* Popup Button */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-300">Popup Button (opens in overlay)</label>
+                <CopyButton text={getPopupSnippet(embedProduct)} />
+              </div>
+              <div className={codeCls}>{getPopupSnippet(embedProduct)}</div>
+              <p className="text-xs text-gray-500 mt-1">Opens the booking form in a popup overlay — visitors stay on your site.</p>
+            </div>
+
+            {/* Iframe Embed */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-300">Iframe Embed (inline)</label>
+                <CopyButton text={getIframeSnippet(embedProduct)} />
+              </div>
+              <div className={codeCls}>{getIframeSnippet(embedProduct)}</div>
+              <p className="text-xs text-gray-500 mt-1">Embed the full booking flow directly into any page.</p>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Product Form Modal */}
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
